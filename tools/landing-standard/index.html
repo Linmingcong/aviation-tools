@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞行仪表规则着陆最低标准检查工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        th {
+            background-color: #f8fafc;
+        }
+        .result-box {
+            transition: all 0.3s ease;
+        }
+        .footnote {
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+         {
+            .no-print {
+                display: none;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-center text-blue-800">仪表飞行规则着陆最低标准检查工具</h1>
+            <p class="text-center text-gray-600 mt-2">基于《飞行运行总手册》（第13版第78次临时修订25-2Y-FXYX-01-02）</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-700 mb-4">交互式着陆最低标准检查</h2>
+            
+            <div class="mb-6">
+                <div class="flex flex-wrap mb-4">
+                    <button id="tab-npa" class="px-4 py-2 mr-2 mb-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">非精密进近(NPA)</button>
+                    <button id="tab-ils" class="px-4 py-2 mr-2 mb-2 bg-blue-500 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">ILS/GLS进近</button>
+                    <button id="tab-cat2" class="px-4 py-2 mr-2 mb-2 bg-blue-500 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">CAT II精密进近</button>
+                </div>
+                
+                <!-- 非精密进近(NPA)表单 -->
+                <div id="content-npa" class="tab-content active">
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">非精密进近(NPA)着陆最低标准检查</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="npa-visibility">当前能见度 (米)</label>
+                            <input type="number" id="npa-visibility" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如: 800">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="npa-rvr">当前RVR值 (米)</label>
+                            <input type="number" id="npa-rvr" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如: 1200">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="npa-lighting">跑道灯光设备</label>
+                            <select id="npa-lighting" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="BALS">基本进近灯光系统 (BALS)</option>
+                                <option value="IALS">中间进近灯光系统 (IALS)</option>
+                                <option value="FALS">全进近灯光系统 (FALS)</option>
+                                <option value="NALS">无进近灯光系统 (NALS)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="npa-category">飞机类别</label>
+                            <select id="npa-category" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="AB">类别 A/B</option>
+                                <option value="C">类别 C</option>
+                                <option value="D">类别 D</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="npa-mdh">MDH高度 (英尺)</label>
+                            <input type="number" id="npa-mdh" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如: 300">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="npa-runway-length">可用跑道长度是否超过标准长度15%</label>
+                            <select id="npa-runway-length" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="yes">是</option>
+                                <option value="no">否</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <button id="check-npa" class="w-full md:w-auto px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">检查是否符合着陆标准</button>
+                    </div>
+                </div>
+                
+                <!-- ILS/GLS进近表单 -->
+                <div id="content-ils" class="tab-content">
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">ILS/GLS进近着陆最低标准检查</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="ils-visibility">当前能见度 (米)</label>
+                            <input type="number" id="ils-visibility" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如: 550">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="ils-rvr">当前RVR值 (米)</label>
+                            <input type="number" id="ils-rvr" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如: 550">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="ils-lighting">跑道灯光设备</label>
+                            <select id="ils-lighting" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="FALS">全进近灯光系统 (FALS)</option>
+                                <option value="IALS">中间进近灯光系统 (IALS)</option>
+                                <option value="BALS">基本进近灯光系统 (BALS)</option>
+                                <option value="NALS">无进近灯光系统 (NALS)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="ils-dh">决断高度(DH) (英尺)</label>
+                            <input type="number" id="ils-dh" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如: 200">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="ils-centerline">跑道中心线灯是否正常工作</label>
+                            <select id="ils-centerline" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="yes">是</option>
+                                <option value="no">否</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="ils-runway-length">可用跑道长度是否超过标准长度15%</label>
+                            <select id="ils-runway-length" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="yes">是</option>
+                                <option value="no">否</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <button id="check-ils" class="w-full md:w-auto px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">检查是否符合着陆标准</button>
+                    </div>
+                </div>
+                
+                <!-- CAT II精密进近表单 -->
+                <div id="content-cat2" class="tab-content">
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">CAT II精密进近着陆最低标准检查</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="cat2-rvr">当前RVR值 (米)</label>
+                            <input type="number" id="cat2-rvr" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如: 300">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="cat2-aircraft">航空器型号</label>
+                            <select id="cat2-aircraft" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="B737-800">波音 B737-800</option>
+                                <option value="B737-8">波音 B737-8</option>
+                                <option value="A319-100">空客 A319-100</option>
+                                <option value="A320-200">空客 A320-200</option>
+                                <option value="A321-200">空客 A321-200</option>
+                                <option value="A330-300">空客 A330-300</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="cat2-dh">决断高度(DH) (英尺)</label>
+                            <select id="cat2-dh" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="100">100 英尺</option>
+                                <option value="30">30 英尺</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="cat2-airport">机场是否在授权CAT II机场清单中</label>
+                            <select id="cat2-airport" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="yes">是</option>
+                                <option value="no">否</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="cat2-centerline">跑道中心线灯是否正常工作</label>
+                            <select id="cat2-centerline" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="yes">是</option>
+                                <option value="no">否</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="cat2-runway-length">可用跑道长度是否超过标准长度15%</label>
+                            <select id="cat2-runway-length" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="yes">是</option>
+                                <option value="no">否</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <button id="check-cat2" class="w-full md:w-auto px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">检查是否符合着陆标准</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 结果显示区域 -->
+            <div id="result" class="result-box hidden p-4 rounded-lg mt-4">
+                <h3 class="text-lg font-medium mb-2" id="result-title"></h3>
+                <p id="result-message" class="text-base"></p>
+                <ul id="result-details" class="list-disc pl-5 mt-2"></ul>
+            </div>
+        </div>
+
+        <div class="section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-700 mb-4">非精密进近(NPA)和类精密进近(APV)着陆最低标准</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">进近灯光设备</th>
+                            <th rowspan="2">DH/MDH (英尺)</th>
+                            <th colspan="4">RVR/能见度 (米)</th>
+                        </tr>
+                        <tr>
+                            <th>类别 A/B</th>
+                            <th>类别 C</th>
+                            <th>类别 D</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>BALS/无灯</td>
+                            <td>≥75</td>
+                            <td>1600</td>
+                            <td>1600</td>
+                            <td>1600</td>
+                        </tr>
+                        <tr>
+                            <td>IALS</td>
+                            <td>≥75</td>
+                            <td>1200</td>
+                            <td>1200</td>
+                            <td>1600</td>
+                        </tr>
+                        <tr>
+                            <td>FALS</td>
+                            <td>≥75</td>
+                            <td>800</td>
+                            <td>800</td>
+                            <td>1600</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4">
+                <p class="footnote">注释:</p>
+                <ol class="list-decimal pl-5 footnote">
+                    <li>NDB/DME 程序MDH加15米(50英尺)</li>
+                    <li>NDB 程序MDH加30米(100英尺)</li>
+                    <li>VOR 程序MDH加15米(50英尺)</li>
+                    <li>RNP(LNAV) 程序MDH加15米(50英尺)</li>
+                    <li>NDB程序能见度应不低于1200米(3/4英里)或RVR不低于1200米(4000英尺)</li>
+                    <li>LOC、APV、LNAV/VNAV程序能见度应不低于1200米(3/4英里)或RVR不低于1200米(4000英尺)</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-700 mb-4">ILS/GLS 进近着陆最低标准</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">进近灯光设备</th>
+                            <th>RVR/能见度 (米)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>FALS (全进近灯光系统)</td>
+                            <td>550</td>
+                        </tr>
+                        <tr>
+                            <td>IALS (中间进近灯光系统)</td>
+                            <td>800</td>
+                        </tr>
+                        <tr>
+                            <td>BALS (基本进近灯光系统)</td>
+                            <td>1200</td>
+                        </tr>
+                        <tr>
+                            <td>NALS (无进近灯光系统)</td>
+                            <td>1200</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4">
+                <p class="footnote">注释:</p>
+                <ol class="list-decimal pl-5 footnote">
+                    <li>使用RVR值时，所有RVR测量点的值都必须满足最低标准</li>
+                    <li>能见度低于800米时，必须使用RVR值</li>
+                    <li>对于I类进近，DH不低于75米时，RVR最小值不得低于800米</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-700 mb-4">CAT II 精密进近着陆最低标准</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th>飞机型号</th>
+                            <th>决断高度(DH)</th>
+                            <th>跑道/中线/区域RVR (米)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="2">波音B737-800</td>
+                            <td>30 米</td>
+                            <td>300/175/75</td>
+                        </tr>
+                        <tr>
+                            <td>100 英尺</td>
+                            <td>300/175/75</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">波音B737-8</td>
+                            <td>30 米</td>
+                            <td>300/175/75</td>
+                        </tr>
+                        <tr>
+                            <td>100 英尺</td>
+                            <td>300/175/75</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">空客A319/A320/A321</td>
+                            <td>30 米</td>
+                            <td>300/175/75</td>
+                        </tr>
+                        <tr>
+                            <td>100 英尺</td>
+                            <td>300/175/75</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">空客A330-300</td>
+                            <td>30 米</td>
+                            <td>300/175/75</td>
+                        </tr>
+                        <tr>
+                            <td>100 英尺</td>
+                            <td>300/175/75</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4">
+                <p class="footnote">注释:</p>
+                <ol class="list-decimal pl-5 footnote">
+                    <li>使用RVR值时，所有RVR测量点的值都必须满足最低标准</li>
+                    <li>DH低于15米的情况下，跑道/中线/区域RVR最低要求为125/125/75米</li>
+                    <li>对于RVR的测量值，应使用跑道接地区、中点和停止端的RVR值</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-700 mb-4">授权II类运行机场清单</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th>机场/类别</th>
+                            <th>跑道号</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CAT II RKSI/ICN</td>
+                            <td>15L/15R/33L/33R/16L/34R/16R/34L</td>
+                        </tr>
+                        <tr>
+                            <td>CAT II RKPC/CJU</td>
+                            <td>07</td>
+                        </tr>
+                        <tr>
+                            <td>CAT II EGLL/LHR</td>
+                            <td>09L/09R/27L/27R</td>
+                        </tr>
+                        <tr>
+                            <td>CAT II VHHH/HKG</td>
+                            <td>07L/07R/25L</td>
+                        </tr>
+                        <tr>
+                            <td>CAT II RCTP/TPE</td>
+                            <td>05L/05R/23L/23R</td>
+                        </tr>
+                        <tr>
+                            <td>CAT II VMMC/MFM</td>
+                            <td>34</td>
+                        </tr>
+                        <tr>
+                            <td>CAT II RJAA/NRT</td>
+                            <td>16R</td>
+                        </tr>
+                        <tr>
+                            <td>CAT II WSSS/SIN</td>
+                            <td>02L/20C</td>
+                        </tr>
+                        <tr>
+                            <td>CAT II VVNB/HAN</td>
+                            <td>11R</td>
+                        </tr>
+                        <tr>
+                            <td>CAT II RJBB/KIX</td>
+                            <td>06L/06R/24L/24R</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-blue-700 mb-4">重要限制条件</h2>
+            <div class="space-y-3">
+                <p>1. 当报告的能见度条件低于1,200米(3/4英里)或跑道视程低于1,200米(4,000英尺)时，除非机长具有特定资格使用更低的着陆最低标准，否则该机长不得实施仪表进近程序。</p>
+                <p>2. 除非下列条件存在，否则在报告的能见度低于1,200米(3/4英里)或跑道视程低于1,200米(4,000英尺)时，机长不得开始仪表进近程序：</p>
+                <ul class="list-disc pl-5">
+                    <li>可用跑道长度超过按相应CCAR121.195(b)确定的目的地机场跑道长度15%。</li>
+                    <li>该跑道上精密仪表(全天候)跑道标志可用或跑道中心线灯正常工作。</li>
+                </ul>
+                <p>3. 对于CAT II运行，还需注意以下要求：</p>
+                <ul class="list-disc pl-5">
+                    <li>RVR值必须至少为300米</li>
+                    <li>机场必须在授权的CAT II机场清单中</li>
+                    <li>机组必须具备相应资质</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 标签切换功能
+        document.getElementById('tab-npa').addEventListener('click', function() {
+            setActiveTab('npa');
+        });
+        
+        document.getElementById('tab-ils').addEventListener('click', function() {
+            setActiveTab('ils');
+        });
+        
+        document.getElementById('tab-cat2').addEventListener('click', function() {
+            setActiveTab('cat2');
+        });
+        
+        function setActiveTab(tabId) {
+            // 更新标签按钮样式
+            document.getElementById('tab-npa').classList.remove('bg-blue-600');
+            document.getElementById('tab-npa').classList.add('bg-blue-500');
+            document.getElementById('tab-ils').classList.remove('bg-blue-600');
+            document.getElementById('tab-ils').classList.add('bg-blue-500');
+            document.getElementById('tab-cat2').classList.remove('bg-blue-600');
+            document.getElementById('tab-cat2').classList.add('bg-blue-500');
+            
+            document.getElementById('tab-' + tabId).classList.remove('bg-blue-500');
+            document.getElementById('tab-' + tabId).classList.add('bg-blue-600');
+            
+            // 隐藏所有内容
+            document.getElementById('content-npa').classList.remove('active');
+            document.getElementById('content-ils').classList.remove('active');
+            document.getElementById('content-cat2').classList.remove('active');
+            
+            // 显示选中的内容
+            document.getElementById('content-' + tabId).classList.add('active');
+            
+            // 隐藏结果
+            hideResult();
+        }
+        
+        // 非精密进近检查
+        document.getElementById('check-npa').addEventListener('click', function() {
+            const visibility = parseFloat(document.getElementById('npa-visibility').value) || 0;
+            const rvr = parseFloat(document.getElementById('npa-rvr').value) || 0;
+            const lighting = document.getElementById('npa-lighting').value;
+            const category = document.getElementById('npa-category').value;
+            const mdh = parseFloat(document.getElementById('npa-mdh').value) || 0;
+            const runwayLength = document.getElementById('npa-runway-length').value;
+            
+            let minRvr = 0;
+            let result = true;
+            let messages = [];
+            let details = [];
+            
+            // 检查MDH高度是否不低于75英尺
+            if (mdh < 75) {
+                result = false;
+                details.push("MDH高度必须不低于75英尺");
+            }
+            
+            // 根据灯光设备和飞机类别确定最低RVR要求
+            if (lighting === "FALS") {
+                if (category === "AB") minRvr = 800;
+                else if (category === "C") minRvr = 800;
+                else if (category === "D") minRvr = 1600;
+            } else if (lighting === "IALS") {
+                if (category === "AB") minRvr = 1200;
+                else if (category === "C") minRvr = 1200;
+                else if (category === "D") minRvr = 1600;
+            } else { // BALS或NALS
+                minRvr = 1600;
+            }
+            
+            // 如果是NDB程序，检查特殊要求
+            if (minRvr < 1200) {
+                details.push("注意：NDB程序能见度应不低于1200米或RVR不低于1200米(4000英尺)");
+            }
+            
+            // 检查可见度或RVR是否满足要求
+            if (rvr > 0 && rvr < minRvr) {
+                result = false;
+                details.push(`当前RVR ${rvr}米低于最低要求的${minRvr}米`);
+            } else if (rvr === 0 && visibility < minRvr) {
+                result = false;
+                details.push(`当前能见度${visibility}米低于最低要求的${minRvr}米`);
+            }
+            
+            // 检查额外限制条件
+            if ((visibility < 1200 || (rvr > 0 && rvr < 1200)) && runwayLength === "no") {
+                result = false;
+                details.push("当能见度低于1200米或RVR低于1200米时，可用跑道长度必须超过标准长度15%");
+            }
+            
+            // 显示结果
+            if (result) {
+                showResult("符合着陆标准", "根据非精密进近最低标准，当前条件符合着陆要求", details, "success");
+            } else {
+                showResult("不符合着陆标准", "根据非精密进近最低标准，当前条件不符合着陆要求", details, "error");
+            }
+        });
+        
+        // ILS/GLS进近检查
+        document.getElementById('check-ils').addEventListener('click', function() {
+            const visibility = parseFloat(document.getElementById('ils-visibility').value) || 0;
+            const rvr = parseFloat(document.getElementById('ils-rvr').value) || 0;
+            const lighting = document.getElementById('ils-lighting').value;
+            const dh = parseFloat(document.getElementById('ils-dh').value) || 0;
+            const centerline = document.getElementById('ils-centerline').value;
+            const runwayLength = document.getElementById('ils-runway-length').value;
+            
+            let minRvr = 0;
+            let result = true;
+            let details = [];
+            
+            // 检查DH高度是否不低于75英尺（约23米）
+            if (dh < 75) {
+                result = false;
+                details.push("I类ILS进近DH高度必须不低于75英尺");
+            }
+            
+            // 根据灯光设备确定最低RVR要求
+            if (lighting === "FALS") {
+                minRvr = 550;
+            } else if (lighting === "IALS") {
+                minRvr = 800;
+            } else { // BALS或NALS
+                minRvr = 1200;
+            }
+            
+            // 检查可见度或RVR是否满足要求
+            if (rvr > 0 && rvr < minRvr) {
+                result = false;
+                details.push(`当前RVR ${rvr}米低于最低要求的${minRvr}米`);
+            } else if (rvr === 0 && visibility < minRvr) {
+                result = false;
+                details.push(`当前能见度${visibility}米低于最低要求的${minRvr}米`);
+            }
+            
+            // 检查能见度低于800米必须使用RVR的要求
+            if (visibility < 800 && rvr === 0) {
+                result = false;
+                details.push("当能见度低于800米时，必须使用RVR值");
+            }
+            
+            // 检查额外限制条件
+            if ((visibility < 1200 || (rvr > 0 && rvr < 1200)) && runwayLength === "no") {
+                result = false;
+                details.push("当能见度低于1200米或RVR低于1200米时，可用跑道长度必须超过标准长度15%");
+            }
+            
+            if ((visibility < 1200 || (rvr > 0 && rvr < 1200)) && centerline === "no") {
+                result = false;
+                details.push("当能见度低于1200米或RVR低于1200米时，跑道中心线灯必须正常工作");
+            }
+            
+            // 显示结果
+            if (result) {
+                showResult("符合着陆标准", "根据ILS/GLS进近最低标准，当前条件符合着陆要求", details, "success");
+            } else {
+                showResult("不符合着陆标准", "根据ILS/GLS进近最低标准，当前条件不符合着陆要求", details, "error");
+            }
+        });
+        
+        // CAT II检查
+        document.getElementById('check-cat2').addEventListener('click', function() {
+            const rvr = parseFloat(document.getElementById('cat2-rvr').value) || 0;
+            const aircraft = document.getElementById('cat2-aircraft').value;
+            const dh = document.getElementById('cat2-dh').value;
+            const airport = document.getElementById('cat2-airport').value;
+            const centerline = document.getElementById('cat2-centerline').value;
+            const runwayLength = document.getElementById('cat2-runway-length').value;
+            
+            let result = true;
+            let details = [];
+            
+            // CAT II要求RVR至少为300米（跑道接地区）
+            if (rvr < 300) {
+                result = false;
+                details.push(`当前RVR ${rvr}米低于CAT II最低要求的300米`);
+            }
+            
+            // 检查是否为授权机场
+            if (airport === "no") {
+                result = false;
+                details.push("机场不在授权的CAT II机场清单中");
+            }
+            
+            // 检查跑道中心线灯
+            if (centerline === "no") {
+                result = false;
+                details.push("CAT II运行要求跑道中心线灯必须正常工作");
+            }
+            
+            // 检查跑道长度
+            if (runwayLength === "no") {
+                result = false;
+                details.push("CAT II运行要求可用跑道长度必须超过标准长度15%");
+            }
+            
+            // 显示结果
+            if (result) {
+                showResult("符合CAT II着陆标准", `根据CAT II运行最低标准，${aircraft}在当前条件下符合着陆要求`, details, "success");
+            } else {
+                showResult("不符合CAT II着陆标准", `根据CAT II运行最低标准，${aircraft}在当前条件下不符合着陆要求`, details, "error");
+            }
+        });
+        
+        function showResult(title, message, details, type) {
+            const resultBox = document.getElementById('result');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            const resultDetails = document.getElementById('result-details');
+            
+            resultTitle.textContent = title;
+            resultMessage.textContent = message;
+            
+            // 清空之前的详情
+            resultDetails.innerHTML = '';
+            
+            // 添加新的详情
+            details.forEach(function(detail) {
+                const li = document.createElement('li');
+                li.textContent = detail;
+                resultDetails.appendChild(li);
+            });
+            
+            // 设置样式
+            resultBox.classList.remove('hidden', 'bg-green-100', 'bg-red-100');
+            if (type === 'success') {
+                resultBox.classList.add('bg-green-100');
+                resultTitle.classList.remove('text-red-700');
+                resultTitle.classList.add('text-green-700');
+            } else {
+                resultBox.classList.add('bg-red-100');
+                resultTitle.classList.remove('text-green-700');
+                resultTitle.classList.add('text-red-700');
+            }
+        }
+        
+        function hideResult() {
+            document.getElementById('result').classList.add('hidden');
+        }
+        
+        // 初始显示非精密进近标签
+        setActiveTab('npa');
+    </script>
+</body>
+</html>
