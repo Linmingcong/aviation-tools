@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机组和机务标准通讯用语指南</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, 'Microsoft YaHei', sans-serif;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .signal-card {
+            transition: transform 0.3s ease;
+        }
+        .signal-card:hover {
+            transform: scale(1.03);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-content.active {
+            max-height: 1000px;
+        }
+        .compare-table td, .compare-table th {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+         {
+            .no-print {
+                display: none;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+        }
+        .dialog-item {
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-blue-900 text-white py-6">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold text-center">机组和机务标准通讯用语指南</h1>
+            <p class="text-center mt-2">发动机启动和推拖飞机期间的标准通讯流程</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-blue-800 text-white py-3 sticky top-0 z-10 no-print">
+        <div class="container mx-auto px-4 flex flex-wrap justify-center">
+            <button class="tab-btn px-4 py-2 mx-1 rounded hover:bg-blue-700 active" data-tab="overview">概述</button>
+            <button class="tab-btn px-4 py-2 mx-1 rounded hover:bg-blue-700" data-tab="communication">通讯程序</button>
+            <button class="tab-btn px-4 py-2 mx-1 rounded hover:bg-blue-700" data-tab="boeing">波音飞机程序</button>
+            <button class="tab-btn px-4 py-2 mx-1 rounded hover:bg-blue-700" data-tab="airbus">空客飞机程序</button>
+            <button class="tab-btn px-4 py-2 mx-1 rounded hover:bg-blue-700" data-tab="handsignals">手势信号</button>
+            <button class="tab-btn px-4 py-2 mx-1 rounded hover:bg-blue-700" data-tab="regulations">规章标准</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Overview Tab -->
+        <section id="overview" class="tab-content active">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4">标准通讯程序概述</h2>
+                <p class="mb-4">本指南汇总了波音和空客飞机在发动机启动和推拖期间，机组和机务人员之间的标准通讯用语，符合ICAO、FAA、EASA和CAAC等民航监管机构的规定。</p>
+                
+                <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-2">为什么需要标准通讯？</h3>
+                    <p class="mb-2">标准通讯用语可以确保:</p>
+                    <ul class="list-disc pl-6 mb-4">
+                        <li>减少误解和通讯错误</li>
+                        <li>提高地面操作的安全性</li>
+                        <li>确保各方对操作步骤有明确一致的理解</li>
+                        <li>符合国际和国家民航局的规定要求</li>
+                    </ul>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h3 class="text-xl font-semibold text-yellow-800 mb-2">通讯方式</h3>
+                        <ul class="list-disc pl-6">
+                            <li>对讲机通讯 (机组 - 机务)</li>
+                            <li>标准手势信号</li>
+                            <li>地面引导信号</li>
+                            <li>无线电通讯 (与ATC)</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h3 class="text-xl font-semibold text-green-800 mb-2">主要操作阶段</h3>
+                        <ul class="list-disc pl-6">
+                            <li>推出前准备</li>
+                            <li>推出操作</li>
+                            <li>发动机启动</li>
+                            <li>拖曳操作</li>
+                            <li>完成操作和设备断开</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-2">波音和空客飞机通讯差异</h3>
+                    <p class="mb-4">虽然基本通讯原则相同，但波音和空客飞机在某些程序和术语上存在以下主要差异：</p>
+                    
+                    <table class="w-full compare-table border-collapse mb-6">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="text-left">特点</th>
+                                <th class="text-left">波音飞机</th>
+                                <th class="text-left">空客飞机</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-medium">发动机启动顺序</td>
+                                <td>通常先2号发动机，后1号发动机</td>
+                                <td>通常先1号发动机，后2号发动机</td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">启动程序命令语</td>
+                                <td>"START ENGINE (number)"</td>
+                                <td>"STARTING ENGINE (number)"</td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">推出后程序</td>
+                                <td>明确强调"SET PARKING BRAKE"</td>
+                                <td>使用"BRAKES SET"确认</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4">交互式学习</h2>
+                <p class="mb-4">点击下方按钮查看不同操作阶段的标准通讯流程：</p>
+                
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                    <button onclick="simulateDialog('pushback')" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition">
+                        <i class="fas fa-plane mr-2"></i>推出程序对话
+                    </button>
+                    <button onclick="simulateDialog('engine-start')" class="bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition">
+                        <i class="fas fa-cogs mr-2"></i>发动机启动对话
+                    </button>
+                    <button onclick="simulateDialog('towing')" class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg transition">
+                        <i class="fas fa-truck mr-2"></i>飞机拖曳对话
+                    </button>
+                </div>
+                
+                <div id="dialog-simulation" class="bg-gray-100 rounded-lg p-4 min-h-[250px] mb-4">
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-headset text-5xl mb-3"></i>
+                        <p>请选择上方按钮来查看对话模拟</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Communication Procedures Tab -->
+        <section id="communication" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4">标准通讯程序</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">通讯基本原则</h3>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <ul class="list-disc pl-6">
+                            <li class="mb-2">使用简洁、明确的语言和术语</li>
+                            <li class="mb-2">确保发出的指令得到明确的回复确认</li>
+                            <li class="mb-2">不使用非标准术语或非正式表达</li>
+                            <li class="mb-2">说话速度保持适中，使信息清晰可辨</li>
+                            <li class="mb-2">当对指令有疑问时，立即请求澄清</li>
+                            <li class="mb-2">使用标准的术语和短语，避免自创表达</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">通讯结构</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-700 mb-2">对话开始</h4>
+                            <p class="mb-2">机务: "驾驶舱，地面呼叫"</p>
+                            <p class="mb-2">机组: "地面，驾驶舱收到"</p>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-700 mb-2">对话结束</h4>
+                            <p class="mb-2">机务: "设备已断开，现在可以滑行"</p>
+                            <p class="mb-2">机组: "设备断开明白，开始滑行"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6 mt-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">ICAO标准通讯用语</h3>
+                    
+                    <div class="mb-4">
+                        <button class="accordion-btn w-full bg-blue-100 hover:bg-blue-200 py-3 px-4 text-left rounded-lg flex justify-between items-center">
+                            <span class="font-semibold">推出程序通讯</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 bg-gray-50 rounded-b-lg">
+                                <table class="w-full border-collapse">
+                                    <thead class="bg-gray-200">
+                                        <tr>
+                                            <th class="text-left p-2 border">通讯方</th>
+                                            <th class="text-left p-2 border">标准用语</th>
+                                            <th class="text-left p-2 border">含义</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"READY FOR PUSHBACK"</td>
+                                            <td class="p-2 border">飞机已准备好进行推出操作</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"CONFIRM BRAKES RELEASED"</td>
+                                            <td class="p-2 border">确认飞机刹车已释放</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"BRAKES RELEASED"</td>
+                                            <td class="p-2 border">确认刹车已释放</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"COMMENCING PUSHBACK"</td>
+                                            <td class="p-2 border">开始推出操作</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"PUSHBACK COMPLETED"</td>
+                                            <td class="p-2 border">推出操作已完成</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"SET PARKING BRAKE"</td>
+                                            <td class="p-2 border">请设置停车刹车</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"PARKING BRAKE SET"</td>
+                                            <td class="p-2 border">停车刹车已设置</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <button class="accordion-btn w-full bg-blue-100 hover:bg-blue-200 py-3 px-4 text-left rounded-lg flex justify-between items-center">
+                            <span class="font-semibold">发动机启动程序通讯</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 bg-gray-50 rounded-b-lg">
+                                <table class="w-full border-collapse">
+                                    <thead class="bg-gray-200">
+                                        <tr>
+                                            <th class="text-left p-2 border">通讯方</th>
+                                            <th class="text-left p-2 border">标准用语</th>
+                                            <th class="text-left p-2 border">含义</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"REQUEST START-UP"</td>
+                                            <td class="p-2 border">请求进行发动机启动</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"APPROVED START-UP"</td>
+                                            <td class="p-2 border">批准发动机启动</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"STARTING ENGINE NUMBER (X)"</td>
+                                            <td class="p-2 border">正在启动X号发动机</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"ENGINE NUMBER (X) ROTATING"</td>
+                                            <td class="p-2 border">X号发动机已开始转动</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"ALL ENGINES STARTED"</td>
+                                            <td class="p-2 border">所有发动机均已启动</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"DISCONNECT GROUND EQUIPMENT"</td>
+                                            <td class="p-2 border">断开地面设备</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <button class="accordion-btn w-full bg-blue-100 hover:bg-blue-200 py-3 px-4 text-left rounded-lg flex justify-between items-center">
+                            <span class="font-semibold">飞机拖曳程序通讯</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 bg-gray-50 rounded-b-lg">
+                                <table class="w-full border-collapse">
+                                    <thead class="bg-gray-200">
+                                        <tr>
+                                            <th class="text-left p-2 border">通讯方</th>
+                                            <th class="text-left p-2 border">标准用语</th>
+                                            <th class="text-left p-2 border">含义</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="p-2 border">机组/机务</td>
+                                            <td class="p-2 border">"REQUEST TOW FROM (location) TO (destination)"</td>
+                                            <td class="p-2 border">请求从某处拖曳至目的地</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">ATC</td>
+                                            <td class="p-2 border">"TOW APPROVED VIA (specific routing)"</td>
+                                            <td class="p-2 border">批准按特定路线拖曳</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"CONFIRM STEERING PIN INSERTED"</td>
+                                            <td class="p-2 border">确认转向销已插入</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"STEERING PIN INSERTED, BRAKES RELEASED"</td>
+                                            <td class="p-2 border">转向销已插入，刹车已释放</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"COMMENCING TOW"</td>
+                                            <td class="p-2 border">开始拖曳</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"TOW COMPLETED, SET BRAKES"</td>
+                                            <td class="p-2 border">拖曳完成，请设置刹车</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6 mt-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">异常情况通讯</h3>
+                    
+                    <div class="mb-4">
+                        <button class="accordion-btn w-full bg-red-100 hover:bg-red-200 py-3 px-4 text-left rounded-lg flex justify-between items-center">
+                            <span class="font-semibold">紧急停止程序</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 bg-gray-50 rounded-b-lg">
+                                <p class="mb-3">当任何一方发现安全隐患需要立即停止操作时：</p>
+                                <table class="w-full border-collapse">
+                                    <thead class="bg-gray-200">
+                                        <tr>
+                                            <th class="text-left p-2 border">通讯方</th>
+                                            <th class="text-left p-2 border">标准用语</th>
+                                            <th class="text-left p-2 border">含义</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="p-2 border">机组/机务</td>
+                                            <td class="p-2 border">"STOP! STOP! STOP!"</td>
+                                            <td class="p-2 border">立即停止所有操作</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"SET PARKING BRAKE IMMEDIATELY"</td>
+                                            <td class="p-2 border">立即设置停车刹车</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"BRAKES SET"</td>
+                                            <td class="p-2 border">刹车已设置</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p class="mt-3 text-red-600 font-semibold">紧急情况下，任何一方都可以直接发出停止命令，对方必须立即执行，无需等待解释。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <button class="accordion-btn w-full bg-yellow-100 hover:bg-yellow-200 py-3 px-4 text-left rounded-lg flex justify-between items-center">
+                            <span class="font-semibold">发动机启动异常</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 bg-gray-50 rounded-b-lg">
+                                <p class="mb-3">当发现发动机启动异常时：</p>
+                                <table class="w-full border-collapse">
+                                    <thead class="bg-gray-200">
+                                        <tr>
+                                            <th class="text-left p-2 border">通讯方</th>
+                                            <th class="text-left p-2 border">标准用语</th>
+                                            <th class="text-left p-2 border">含义</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"ABNORMAL START, ENGINE (X)"</td>
+                                            <td class="p-2 border">X号发动机启动异常</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"ABORTING START"</td>
+                                            <td class="p-2 border">正在中止启动</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机务</td>
+                                            <td class="p-2 border">"FIRE INDICATION, ENGINE (X)"</td>
+                                            <td class="p-2 border">X号发动机有火警指示</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border">机组</td>
+                                            <td class="p-2 border">"ACTIVATING FIRE SUPPRESSION"</td>
+                                            <td class="p-2 border">激活灭火系统</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Boeing Tab -->
+        <section id="boeing" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4">波音飞机通讯程序</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">波音系列飞机的标准通讯</h3>
+                    <p class="mb-4">波音飞机（如737、747、777、787等）在发动机启动和推拖操作中有一套特定的通讯程序。以下是波音飞机的标准通讯流程和术语：</p>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">发动机启动程序</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <h4 class="font-semibold text-blue-700 mb-2">关键特点</h4>
+                            <ul class="list-disc pl-6 mb-4">
+                                <li>波音飞机通常先启动2号发动机，后启动1号发动机</li>
+                                <li>使用ENGINE START开关，位置为GRD（地面启动）</li>
+                                <li>需要监控N1、N2、EGT和燃油流量等关键参数</li>
+                                <li>使用"STARTER CUTOUT"通报自动断开启动程序</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-700 mb-2">标准启动程序通讯顺序</h4>
+                            <ol class="list-decimal pl-6">
+                                <li class="mb-1">机组宣布："Start ENGINE NUMBER (X)"</li>
+                                <li class="mb-1">机务确认："Clear to start"</li>
+                                <li class="mb-1">机务报告："N1 rotation"</li>
+                                <li class="mb-1">机组在适当时机宣布："STARTER CUTOUT"</li>
+                                <li class="mb-1">机务确认："ENGINE (X) STABILIZED"</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                        <h4 class="font-semibold text-blue-700 mb-2">波音737发动机启动标准对话</h4>
+                        <div class="pl-4 border-l-4 border-blue-200">
+                            <p class="mb-2"><strong>机务：</strong> "Cockpit, ground. All doors and panels closed, ready for engine start."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Ground, cockpit. Starting right engine."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Clear to start right engine."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Right engine N1 rotation."</p>
+                            <p class="mb-2"><strong>机组：</strong> "STARTER CUTOUT."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Right engine stabilized."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Starting left engine."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Clear to start left engine."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Left engine N1 rotation."</p>
+                            <p class="mb-2"><strong>机组：</strong> "STARTER CUTOUT."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Left engine stabilized."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">波音飞机推出程序</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <h4 class="font-semibold text-blue-700 mb-2">关键程序要点</h4>
+                            <ul class="list-disc pl-6 mb-4">
+                                <li>明确建立与地面人员的通讯</li>
+                                <li>推出过程中不使用飞机刹车停止飞机</li>
+                                <li>按地面人员指示操作刹车</li>
+                                <li>推出完成后设置停车刹车</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-700 mb-2">波音飞机推出标准用语</h4>
+                            <ul class="pl-4">
+                                <li class="mb-1"><strong>机组请求推出：</strong> "Request pushback"</li>
+                                <li class="mb-1"><strong>机务确认刹车：</strong> "Confirm parking brakes set"</li>
+                                <li class="mb-1"><strong>机组回应：</strong> "Parking brakes set"</li>
+                                <li class="mb-1"><strong>推出前释放：</strong> "Release parking brakes"</li>
+                                <li class="mb-1"><strong>机组确认：</strong> "Parking brakes released"</li>
+                                <li class="mb-1"><strong>推出完成：</strong> "Pushback complete, set parking brakes"</li>
+                                <li class="mb-1"><strong>机组回应：</strong> "Parking brakes set"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                        <h4 class="font-semibold text-blue-700 mb-2">波音推出标准对话示例（波音737）</h4>
+                        <div class="pl-4 border-l-4 border-blue-200">
+                            <p class="mb-2"><strong>机组：</strong> "Ground, cockpit, request pushback."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Cockpit, ground, confirm parking brakes set."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Ground, cockpit, parking brakes set."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Cockpit, ground, prepare for pushback, release parking brakes when ready."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Ground, cockpit, parking brakes released."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Commencing pushback."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Pushback complete, set parking brakes."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Parking brakes set."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Parking brakes set, disconnecting tow bar."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Tow bar disconnected, bypassing pin removed, clear to disconnect headset."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Clear to disconnect, thank you for your service."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">波音飞机拖曳程序</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <h4 class="font-semibold text-blue-700 mb-2">拖曳注意事项</h4>
+                            <ul class="list-disc pl-6 mb-4">
+                                <li>必须确保转向系统解锁</li>
+                                <li>明确转向销的状态（已插入/已拔出）</li>
+                                <li>按照特定路线拖曳时，需要明确转向方向</li>
+                                <li>确保拖曳期间刹车正确使用</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-700 mb-2">拖曳标准用语</h4>
+                            <ul class="pl-4">
+                                <li class="mb-1"><strong>确认拖曳许可：</strong> "Tow approved via (routing)"</li>
+                                <li class="mb-1"><strong>确认转向状态：</strong> "Confirm steering bypass pin inserted"</li>
+                                <li class="mb-1"><strong>确认刹车状态：</strong> "Confirm parking brakes released"</li>
+                                <li class="mb-1"><strong>转向指令：</strong> "Turning left/right"</li>
+                                <li class="mb-1"><strong>拖曳完成：</strong> "Tow complete, set parking brakes"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Airbus Tab -->
+        <section id="airbus" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4">空客飞机通讯程序</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">空客系列飞机的标准通讯</h3>
+                    <p class="mb-4">空客飞机（如A320、A330、A350等）在发动机启动和推拖操作中有一套特定的通讯程序。以下是空客飞机的标准通讯流程和术语：</p>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">发动机启动程序</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <h4 class="font-semibold text-blue-700 mb-2">关键特点</h4>
+                            <ul class="list-disc pl-6 mb-4">
+                                <li>空客飞机通常先启动1号发动机，后启动2号发动机</li>
+                                <li>在IGN/START位置使用ENGINE MODE选择器</li>
+                                <li>使用ENG MASTER开关从OFF切换到ON</li>
+                                <li>监控N1、N2以及EGT的变化</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-700 mb-2">启动程序通讯顺序</h4>
+                            <ol class="list-decimal pl-6">
+                                <li class="mb-1">机组宣布："Engine (X) Start"</li>
+                                <li class="mb-1">机务确认："Clear to start engine (X)"</li>
+                                <li class="mb-1">机务报告："N1/N2 rotation"</li>
+                                <li class="mb-1">机务确认："Engine (X) parameters normal"</li>
+                                <li class="mb-1">启动下一台发动机重复上述步骤</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                        <h4 class="font-semibold text-blue-700 mb-2">A320发动机启动标准对话</h4>
+                        <div class="pl-4 border-l-4 border-blue-200">
+                            <p class="mb-2"><strong>机务：</strong> "Cockpit, ground, all doors and panels closed, ready for start."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Ground, cockpit, starting engine one."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Engine one clear to start."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Engine one N2 rotation."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Engine one parameters normal, stabilized."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Starting engine two."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Engine two clear to start."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Engine two N2 rotation."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Engine two parameters normal, stabilized."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Both engines stable, normal parameters."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">空客飞机推出程序</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <h4 class="font-semibold text-blue-700 mb-2">关键程序要点</h4>
+                            <ul class="list-disc pl-6 mb-4">
+                                <li>确认机轮挡块已经移除</li>
+                                <li>依照指示确认刹车状态</li>
+                                <li>推出途中确认转向系统旁通销状态</li>
+                                <li>推出完成后确认刹车设置</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-700 mb-2">空客推出标准用语</h4>
+                            <ul class="pl-4">
+                                <li class="mb-1"><strong>机务准备推出：</strong> "Ground to cockpit, chocks removed, ready for pushback"</li>
+                                <li class="mb-1"><strong>确认刹车：</strong> "Confirm brakes released"</li>
+                                <li class="mb-1"><strong>机组回应：</strong> "Brakes released"</li>
+                                <li class="mb-1"><strong>开始推出：</strong> "Commencing pushback"</li>
+                                <li class="mb-1"><strong>推出完成：</strong> "Pushback complete, set brakes"</li>
+                                <li class="mb-1"><strong>机组回应：</strong> "Brakes set"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                        <h4 class="font-semibold text-blue-700 mb-2">A320推出标准对话</h4>
+                        <div class="pl-4 border-l-4 border-blue-200">
+                            <p class="mb-2"><strong>机组：</strong> "Ground, cockpit, request push and start."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Cockpit, ground, chocks removed, ready for pushback."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Confirm brakes released."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Brakes released."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Commencing pushback."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Pushback complete, set brakes."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Brakes set."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Disconnecting tow bar."</p>
+                            <p class="mb-2"><strong>机务：</strong> "Tow bar disconnected, bypassing pin removed, all clear."</p>
+                            <p class="mb-2"><strong>机组：</strong> "Roger, thank you."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">空客飞机拖曳程序</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <h4 class="font-semibold text-blue-700 mb-2">拖曳注意事项</h4>
+                            <ul class="list-disc pl-6 mb-4">
+                                <li>确认转向系统旁通销已经插入</li>
+                                <li>清晰表明预计拖曳路线和方向</li>
+                                <li>在拖曳过程中使用标准转向术语</li>
+                                <li>保持持续通讯，尤其是转向时</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-700 mb-2">拖曳标准用语</h4>
+                            <ul class="pl-4">
+                                <li class="mb-1"><strong>确认旁通销：</strong> "Confirm NWS bypass pin in towing position"</li>
+                                <li class="mb-1"><strong>确认拖曳路线：</strong> "Towing via (routing details)"</li>
+                                <li class="mb-1"><strong>确认刹车：</strong> "Confirm brakes released"</li>
+                                <li class="mb-1"><strong>转向指示：</strong> "Turning left/right"</li>
+                                <li class="mb-1"><strong>拖曳完成：</strong> "Tow complete, set brakes"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-700 mb-2">空客特有的拖曳注意事项</h4>
+                        <p class="mb-2">空客飞机要求在拖曳操作中特别注意转向系统状态。A320系列飞机会在ECAM上显示"NWS DISC"信息，当转向旁通销安装在拖曳位置时。如果显示此信息但地面人员确认转向销处于拖曳位置，则请勿在推出过程中启动发动机。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-blue-800 mb-3">波音与空客比较</h3>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full compare-table border-collapse">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="text-left p-3">操作项目</th>
+                                <th class="text-left p-3">波音飞机</th>
+                                <th class="text-left p-3">空客飞机</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-3 font-medium">发动机启动顺序</td>
+                                <td class="p-3">通常先启动2号发动机，后启动1号发动机</td>
+                                <td class="p-3">通常先启动1号发动机，后启动2号发动机</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium">启动宣布用语</td>
+                                <td class="p-3">"Start ENGINE NUMBER (X)"</td>
+                                <td class="p-3">"Starting ENGINE NUMBER (X)"</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium">启动系统控制</td>
+                                <td class="p-3">ENGINE START switch to GRD</td>
+                                <td class="p-3">ENGINE MODE selector to IGN/START</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium">推出刹车用语</td>
+                                <td class="p-3">"Parking brakes set/released"</td>
+                                <td class="p-3">"Brakes set/released"</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium">启动顺序确认</td>
+                                <td class="p-3">"STARTER CUTOUT"</td>
+                                <td class="p-3">由机务报告"Parameters normal"</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium">转向系统术语</td>
+                                <td class="p-3">"Steering bypass pin"</td>
+                                <td class="p-3">"NWS bypass pin"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hand Signals Tab -->
+        <section id="handsignals" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4">标准手势信号</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">ICAO标准地面操作手势</h3>
+                    <p class="mb-4">当无法使用对讲机通讯时，标准手势信号是机组和地面人员之间重要的通讯方式。以下是推出和发动机启动过程中常用的标准手势：</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-700 mb-2">手势信号重要性</h4>
+                        <ul class="list-disc pl-6">
+                            <li class="mb-2">提供视觉通讯备份方式</li>
+                            <li class="mb-2">确保在设备故障情况下能够继续安全操作</li>
+                            <li class="mb-2">减少因语言差异导致的误解</li>
+                            <li class="mb-2">在环境噪音大的情况下确保清晰通讯</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-700 mb-2">手势标准化</h4>
+                        <ul class="list-disc pl-6">
+                            <li class="mb-2">ICAO已经制定标准手势，载于附件2</li>
+                            <li class="mb-2">适用于全球所有使用ICAO标准的机场</li>
+                            <li class="mb-2">为防止混淆，禁止使用非标准手势</li>
+                            <li class="mb-2">航空公司可以基于这些标准制定详细程序</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">推出和拖曳相关手势</h3>
+                    
+                    <div class="signal-grid">
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-blue-100 p-3">
+                                <h4 class="font-semibold text-center">刹车设置</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-hand-rock text-5xl text-blue-700 mb-3"></i>
+                                <p class="text-sm">手臂在胸前，手握拳，表示设置刹车</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-blue-100 p-3">
+                                <h4 class="font-semibold text-center">刹车释放</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-hand-paper text-5xl text-blue-700 mb-3"></i>
+                                <p class="text-sm">手臂在胸前，手掌打开，表示释放刹车</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-blue-100 p-3">
+                                <h4 class="font-semibold text-center">开始后推</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-arrow-circle-right text-5xl text-blue-700 mb-3"></i>
+                                <p class="text-sm">双臂向外伸展，然后向身体方向收回</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-blue-100 p-3">
+                                <h4 class="font-semibold text-center">转向（尾部向右）</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-undo text-5xl text-blue-700 mb-3"></i>
+                                <p class="text-sm">左手向下指，右手重复上抬动作</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-blue-100 p-3">
+                                <h4 class="font-semibold text-center">转向（尾部向左）</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-redo text-5xl text-blue-700 mb-3"></i>
+                                <p class="text-sm">右手向下指，左手重复上抬动作</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-blue-100 p-3">
+                                <h4 class="font-semibold text-center">正常停止</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-hand-paper text-5xl text-blue-700 mb-3"></i>
+                                <p class="text-sm">双臂完全伸展，掌心朝前</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-blue-100 p-3">
+                                <h4 class="font-semibold text-center">紧急停止</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-times-circle text-5xl text-red-600 mb-3"></i>
+                                <p class="text-sm">双臂快速交叉过头顶</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-blue-100 p-3">
+                                <h4 class="font-semibold text-center">插入轮挡</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-grip-lines text-5xl text-blue-700 mb-3"></i>
+                                <p class="text-sm">双臂向下，掌心相对，做插入动作</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">发动机启动相关手势</h3>
+                    
+                    <div class="signal-grid">
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-green-100 p-3">
+                                <h4 class="font-semibold text-center">启动发动机</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-sync text-5xl text-green-600 mb-3"></i>
+                                <p class="text-sm">右手绕头部做圆周运动，同时左手指向相应发动机</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-green-100 p-3">
+                                <h4 class="font-semibold text-center">切断发动机</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-hand-scissors text-5xl text-green-600 mb-3"></i>
+                                <p class="text-sm">右臂前伸，手在颈部前做切割动作</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-green-100 p-3">
+                                <h4 class="font-semibold text-center">减速发动机</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-arrow-down text-5xl text-green-600 mb-3"></i>
+                                <p class="text-sm">手臂下垂，掌心向地面，然后上下移动</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-green-100 p-3">
+                                <h4 class="font-semibold text-center">减速指定发动机</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-hand-point-down text-5xl text-green-600 mb-3"></i>
+                                <p class="text-sm">手臂下垂，掌心向地面，一只手上下移动指示相应发动机减速</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-green-100 p-3">
+                                <h4 class="font-semibold text-center">APU已连接</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-plug text-5xl text-green-600 mb-3"></i>
+                                <p class="text-sm">右手平举做插入动作，左手比OK手势</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-green-100 p-3">
+                                <h4 class="font-semibold text-center">APU已断开</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-times text-5xl text-green-600 mb-3"></i>
+                                <p class="text-sm">右手平举做拔出动作，左手比OK手势</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-green-100 p-3">
+                                <h4 class="font-semibold text-center">肯定（一切正常）</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-thumbs-up text-5xl text-green-600 mb-3"></i>
+                                <p class="text-sm">右臂抬至头部高度，拳头紧握，拇指向上</p>
+                            </div>
+                        </div>
+                        
+                        <div class="signal-card bg-white shadow-md rounded-lg overflow-hidden">
+                            <div class="bg-green-100 p-3">
+                                <h4 class="font-semibold text-center">否定（不正常）</h4>
+                            </div>
+                            <div class="p-4 text-center">
+                                <i class="fas fa-thumbs-down text-5xl text-red-600 mb-3"></i>
+                                <p class="text-sm">右臂抬至头部高度，拳头紧握，拇指向下</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-yellow-800 mb-2">注意事项</h4>
+                    <ul class="list-disc pl-6">
+                        <li class="mb-2">确保在夜间操作时手势清晰可见，必要时使用荧光棒</li>
+                        <li class="mb-2">机组人员应确认理解所有手势，有疑问时立即寻求澄清</li>
+                        <li class="mb-2">所有参与地面操作的人员应接受标准手势培训</li>
+                        <li class="mb-2">紧急情况下，紧急停止信号应立即被执行，无需解释</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Regulations Tab -->
+        <section id="regulations" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4">规章标准</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">国际和国内标准</h3>
+                    <p class="mb-4">以下是与飞机地面操作通讯相关的主要国际和国内标准规范：</p>
+                </div>
+
+                <div class="mb-6">
+                    <div class="dropdown">
+                        <button class="accordion-btn w-full bg-blue-100 hover:bg-blue-200 py-3 px-4 text-left rounded-lg flex justify-between items-center">
+                            <span class="font-semibold">ICAO 国际民航组织标准</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 bg-gray-50 rounded-b-lg">
+                                <p class="mb-3">ICAO为飞机地面操作通讯制定了全球标准：</p>
+                                <ul class="list-disc pl-6 mb-4">
+                                    <li class="mb-2"><strong>ICAO Doc 9432</strong> - 《无线电通讯手册》，提供标准无线电通讯用语</li>
+                                    <li class="mb-2"><strong>ICAO Doc 4444</strong> - 《空中交通管理》，包含推出和滑行通讯标准</li>
+                                    <li class="mb-2"><strong>ICAO Annex 2</strong> - 《空中规则》，包含标准手势信号</li>
+                                    <li class="mb-2"><strong>ICAO Annex 10</strong> - 《航空电信》，对无线通讯标准进行规范</li>
+                                </ul>
+                                <p class="text-sm text-blue-700"><a href="https://www.icao.int" target="_blank" class="hover:underline">ICAO官方网站 <i class="fas fa-external-link-alt"></i></a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="dropdown">
+                        <button class="accordion-btn w-full bg-blue-100 hover:bg-blue-200 py-3 px-4 text-left rounded-lg flex justify-between items-center">
+                            <span class="font-semibold">CAAC 中国民航局标准</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 bg-gray-50 rounded-b-lg">
+                                <p class="mb-3">CAAC制定了符合ICAO标准并适用于中国民航的相关规定：</p>
+                                <ul class="list-disc pl-6 mb-4">
+                                    <li class="mb-2"><strong>CCAR-121</strong> - 《运输航空公司运行合格审定规则》，对地面操作通讯有相关要求</li>
+                                    <li class="mb-2"><strong>AP-135-FS-2012-03</strong> - 《中国民航无线电通讯规程》，规范地面通讯用语</li>
+                                    <li class="mb-2"><strong>AC-91-FS</strong> - 《航空器地面运行指南》，对地面操作安全通讯提出要求</li>
+                                    <li class="mb-2"><strong>AC-120</strong> - 《飞行运行手册》，要求航空公司建立标准通讯程序</li>
+                                </ul>
+                                <p class="text-sm text-blue-700"><a href="http://www.caac.gov.cn" target="_blank" class="hover:underline">CAAC官方网站 <i class="fas fa-external-link-alt"></i></a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="dropdown">
+                        <button class="accordion-btn w-full bg-blue-100 hover:bg-blue-200 py-3 px-4 text-left rounded-lg flex justify-between items-center">
+                            <span class="font-semibold">FAA 美国联邦航空管理局标准</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 bg-gray-50 rounded-b-lg">
+                                <p class="mb-3">FAA的相关标准包括：</p>
+                                <ul class="list-disc pl-6 mb-4">
+                                    <li class="mb-2"><strong>AC 00-65A</strong> - 《牵引杆和无牵引杆飞机移动》，规范推拖操作通讯</li>
+                                    <li class="mb-2"><strong>FAA Order 7110.65</strong> - 《空中交通管制》，包含地面通讯程序</li>
+                                    <li class="mb-2"><strong>AC 120-57A</strong> - 《地面操作审定规范》，对地面操作通讯提出要求</li>
+                                    <li class="mb-2"><strong>AC 00-34B</strong> - 《航空器操作手势》，规范手势信号</li>
+                                </ul>
+                                <p class="text-sm text-blue-700"><a href="https://www.faa.gov" target="_blank" class="hover:underline">FAA官方网站 <i class="fas fa-external-link-alt"></i></a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="dropdown">
+                        <button class="accordion-btn w-full bg-blue-100 hover:bg-blue-200 py-3 px-4 text-left rounded-lg flex justify-between items-center">
+                            <span class="font-semibold">EASA 欧洲航空安全局标准</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 bg-gray-50 rounded-b-lg">
+                                <p class="mb-3">EASA的相关标准包括：</p>
+                                <ul class="list-disc pl-6 mb-4">
+                                    <li class="mb-2"><strong>EASA AMC1 CAT.OP.MPA.130</strong> - 《商业航空运输-无线电通讯》，规范地面通讯</li>
+                                    <li class="mb-2"><strong>EU 965/2012</strong> - 《欧盟航空运行法规》，对地面操作通讯有相关规定</li>
+                                    <li class="mb-2"><strong>SERA.14001</strong> - 《标准欧洲航空规则》，规范无线电通讯程序</li>
+                                    <li class="mb-2"><strong>EASA SIB 2018-10</strong> - 《地面操作安全信息公告》，提供通讯最佳实践</li>
+                                </ul>
+                                <p class="text-sm text-blue-700"><a href="https://www.easa.europa.eu" target="_blank" class="hover:underline">EASA官方网站 <i class="fas fa-external-link-alt"></i></a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6 mt-6">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-3">标准遵循要求</h3>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                        <h4 class="font-semibold text-blue-700 mb-2">航空公司义务</h4>
+                        <ul class="list-disc pl-6">
+                            <li class="mb-2">建立符合国际和国内标准的通讯程序</li>
+                            <li class="mb-2">编制运行手册，明确标准通讯用语</li>
+                            <li class="mb-2">确保所有机组和地面人员接受适当培训</li>
+                            <li class="mb-2">定期审核通讯程序的执行情况</li>
+                            <li class="mb-2">保持对通讯程序的更新，符合最新规定</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-yellow-700 mb-2">机组和机务义务</h4>
+                        <ul class="list-disc pl-6">
+                            <li class="mb-2">熟悉并严格遵守标准通讯用语</li>
+                            <li class="mb-2">参加定期培训和复训</li>
+                            <li class="mb-2">在操作中保持警觉，准确执行通讯程序</li>
+                            <li class="mb-2">及时报告通讯程序中的问题和改进建议</li>
+                            <li class="mb-2">在异常情况下确保明确、简洁的通讯</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4">
+            <p class="text-center text-sm mb-2">本指南根据波音、空客飞机手册及ICAO、CAAC、FAA、EASA等机构的规定编制</p>
+            <p class="text-center text-sm">© 2025 民航标准通讯用语指南 | 最后更新日期: 2025年4月10日</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Tab Navigation
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all tabs and buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'bg-blue-700'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding tab
+                button.classList.add('active', 'bg-blue-700');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Accordion functionality
+        document.querySelectorAll('.accordion-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                content.classList.toggle('active');
+                const icon = button.querySelector('i');
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-up');
+            });
+        });
+
+        // Dialog simulation
+        function simulateDialog(type) {
+            const simulationDiv = document.getElementById('dialog-simulation');
+            simulationDiv.innerHTML = '';
+            
+            let dialogItems = [];
+            
+            if (type === 'pushback') {
+                dialogItems = [
+                    { speaker: '机组', message: 'Ground, cockpit, request pushback.' },
+                    { speaker: '机务', message: 'Cockpit, ground, confirm parking brakes set.' },
+                    { speaker: '机组', message: 'Ground, cockpit, parking brakes set.' },
+                    { speaker: '机务', message: 'Cockpit, ground, prepare for pushback, release parking brakes when ready.' },
+                    { speaker: '机组', message: 'Ground, cockpit, parking brakes released.' },
+                    { speaker: '机务', message: 'Commencing pushback.' },
+                    { speaker: '机务', message: 'Pushback complete, set parking brakes.' },
+                    { speaker: '机组', message: 'Parking brakes set.' },
+                    { speaker: '机务', message: 'Parking brakes set, disconnecting tow bar.' },
+                    { speaker: '机务', message: 'Tow bar disconnected, clear to start engines.' }
+                ];
+            } else if (type === 'engine-start') {
+                dialogItems = [
+                    { speaker: '机组', message: 'Ground, cockpit, starting number 2 engine.' },
+                    { speaker: '机务', message: 'Cockpit, ground, clear to start number 2 engine.' },
+                    { speaker: '机务', message: 'Number 2 engine N1 rotation.' },
+                    { speaker: '机组', message: 'STARTER CUTOUT.' },
+                    { speaker: '机务', message: 'Number 2 engine stabilized.' },
+                    { speaker: '机组', message: 'Starting number 1 engine.' },
+                    { speaker: '机务', message: 'Clear to start number 1 engine.' },
+                    { speaker: '机务', message: 'Number 1 engine N1 rotation.' },
+                    { speaker: '机组', message: 'STARTER CUTOUT.' },
+                    { speaker: '机务', message: 'Number 1 engine stabilized.' },
+                    { speaker: '机组', message: 'Both engines normal, ready for taxi.' },
+                    { speaker: '机务', message: 'All ground equipment disconnected, clear to taxi.' }
+                ];
+            } else if (type === 'towing') {
+                dialogItems = [
+                    { speaker: '机务', message: 'Cockpit, ground, request tow aircraft from gate A5 to hangar 3.' },
+                    { speaker: '机组', message: 'Ground, cockpit, confirm steering bypass pin inserted.' },
+                    { speaker: '机务', message: 'Cockpit, ground, steering bypass pin inserted.' },
+                    { speaker: '机组', message: 'Ground, cockpit, confirm towing route.' },
+                    { speaker: '机务', message: 'Towing via taxiway E then right turn onto taxiway B to hangar 3.' },
+                    { speaker: '机务', message: 'Confirm brakes released.' },
+                    { speaker: '机组', message: 'Brakes released.' },
+                    { speaker: '机务', message: 'Commencing tow.' },
+                    { speaker: '机务', message: 'Turning right onto taxiway B.' },
+                    { speaker: '机务', message: 'Approaching hangar 3, preparing to stop.' },
+                    { speaker: '机务', message: 'Tow complete, set brakes.' },
+                    { speaker: '机组', message: 'Brakes set.' },
+                    { speaker: '机务', message: 'Disconnecting tow bar, removing steering bypass pin.' },
+                    { speaker: '机务', message: 'Tow bar disconnected, steering bypass pin removed.' }
+                ];
+            }
+            
+            // Clear the simulation div
+            simulationDiv.innerHTML = '<div class="bg-blue-800 text-white p-3 rounded-t-lg font-semibold">通讯模拟：' + 
+                (type === 'pushback' ? '推出程序' : type === 'engine-start' ? '发动机启动' : '飞机拖曳') + '</div>' +
+                '<div id="dialog-content" class="p-4"></div>';
+            
+            const dialogContent = document.getElementById('dialog-content');
+            
+            // Add items with a delay
+            let delay = 0;
+            dialogItems.forEach(item => {
+                setTimeout(() => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'dialog-item mb-2';
+                    
+                    if (item.speaker === '机组') {
+                        itemDiv.innerHTML = '<div class="flex"><div class="bg-blue-100 text-blue-800 px-2 py-1 rounded-l-lg font-semibold">' + 
+                            item.speaker + '</div><div class="bg-blue-50 px-3 py-1 rounded-r-lg flex-grow">' + item.message + '</div></div>';
+                    } else {
+                        itemDiv.innerHTML = '<div class="flex justify-end"><div class="bg-green-100 text-green-800 px-2 py-1 rounded-l-lg font-semibold">' + 
+                            item.speaker + '</div><div class="bg-green-50 px-3 py-1 rounded-r-lg flex-grow-0">' + item.message + '</div></div>';
+                    }
+                    
+                    dialogContent.appendChild(itemDiv);
+                    
+                    // Auto-scroll to bottom
+                    dialogContent.scrollTop = dialogContent.scrollHeight;
+                }, delay);
+                
+                delay += 800;
+            });
+        }
+    </script>
+</body>
+</html>
