@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>米制↔英尺 高度转换</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+.container { width: 620px; max-width: 100%; }
+
+.header {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 28px 24px 20px;
+  margin-bottom: 18px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.header h1 { font-size: 26px; color: #fff; margin-bottom: 4px; letter-spacing: 1px; }
+.header p { font-size: 13px; color: rgba(255,255,255,0.5); }
+.tabs { display: flex; gap: 6px; justify-content: center; margin-top: 18px; }
+.tab-btn {
+  padding: 10px 24px; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600;
+  transition: all 0.3s; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5);
+}
+.tab-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; box-shadow: 0 4px 16px rgba(102,126,234,0.4); }
+.tab-btn:hover:not(.active) { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
+
+.card {
+  background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 24px;
+  margin-bottom: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); display: none;
+}
+.card.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.setting-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.setting-row label { font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 500; min-width: 60px; }
+.setting-row select, .setting-row input[type="number"] {
+  padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+  font-size: 14px; outline: none; background: rgba(255,255,255,0.1); color: #fff; transition: border 0.2s;
+}
+.setting-row select option { background: #302b63; color: #fff; }
+.setting-row select:focus { border-color: #667eea; }
+
+.btn {
+  padding: 8px 20px; border: none; border-radius: 10px; cursor: pointer;
+  font-size: 14px; font-weight: 600; transition: all 0.3s;
+}
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(102,126,234,0.5); }
+.btn-success { background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; box-shadow: 0 4px 12px rgba(17,153,142,0.3); }
+.btn-success:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(17,153,142,0.5); }
+.btn-danger { background: linear-gradient(135deg, #eb3349, #f45c43); color: #fff; box-shadow: 0 4px 12px rgba(235,51,73,0.3); }
+.btn-danger:hover { transform: translateY(-1px); }
+.btn-outline { background: transparent; color: #667eea; border: 1.5px solid #667eea; }
+.btn-outline:hover { background: rgba(102,126,234,0.15); }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+.practice-area { text-align: center; padding: 20px 0; }
+.question {
+  font-size: 56px; font-weight: 800;
+  background: linear-gradient(135deg, #667eea, #38ef7d);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.question-unit { font-size: 17px; color: rgba(255,255,255,0.5); margin-bottom: 24px; }
+.answer-input { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.answer-input input {
+  width: 220px; padding: 14px 16px; border: 2px solid rgba(255,255,255,0.2); border-radius: 14px;
+  font-size: 26px; text-align: center; outline: none; background: rgba(255,255,255,0.08);
+  color: #fff; transition: all 0.3s;
+}
+.answer-input input:focus { border-color: #667eea; box-shadow: 0 0 20px rgba(102,126,234,0.3); }
+.answer-input input.correct { border-color: #38ef7d; background: rgba(56,239,125,0.1); }
+.answer-input input.wrong { border-color: #f45c43; background: rgba(244,92,67,0.1); }
+
+.choices { display: flex; flex-direction: column; gap: 10px; max-width: 360px; margin: 0 auto 16px; }
+.choice-btn {
+  padding: 16px; border: 2px solid rgba(255,255,255,0.15); border-radius: 14px; cursor: pointer;
+  font-size: 22px; font-weight: 700; background: rgba(255,255,255,0.06); color: #fff;
+  transition: all 0.2s; text-align: center;
+}
+.choice-btn:hover:not(.no-hover) { border-color: #667eea; background: rgba(102,126,234,0.15); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(102,126,234,0.3); }
+.choice-btn.correct-answer { border-color: #38ef7d; background: rgba(56,239,125,0.15); }
+.choice-btn.wrong-answer { border-color: #f45c43; background: rgba(244,92,67,0.15); }
+.choice-btn.no-hover { cursor: default; }
+.choice-nav { display: flex; gap: 10px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+
+.result { font-size: 18px; font-weight: 600; margin-bottom: 12px; min-height: 28px; }
+.result.correct { color: #38ef7d; }
+.result.wrong { color: #f45c43; }
+.progress-info { font-size: 14px; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+
+.memory-phonetic {
+  font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: 3px;
+}
+.memory-unit { font-size: 32px; font-weight: 800; color: rgba(255,255,255,0.7); margin-bottom: 24px; }
+.memory-controls { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+
+.stat-bar { display: flex; gap: 20px; justify-content: center; margin-top: 16px; }
+.stat-item { font-size: 13px; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.06); padding: 6px 14px; border-radius: 8px; }
+.stat-item strong { color: #fff; }
+
+.wrong-list { margin-top: 12px; }
+.wrong-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  margin-bottom: 8px; background: rgba(255,255,255,0.04); transition: background 0.2s;
+}
+.wrong-item:hover { background: rgba(255,255,255,0.08); }
+.wrong-item .info { font-size: 14px; color: rgba(255,255,255,0.7); }
+.wrong-item .info span { font-weight: 600; color: #fff; }
+.wrong-item .info .user-ans { color: #f45c43; }
+.empty-msg { text-align: center; padding: 40px 0; color: rgba(255,255,255,0.25); font-size: 16px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>📏 高度转换</h1>
+    <p>米制 ↔ 英尺 · 记忆训练工具</p>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="practice" onclick="switchTab('practice')">✏️ 练习</button>
+      <button class="tab-btn" data-tab="wrong" onclick="switchTab('wrong')">❌ 错题本 <span id="wrongBadge" style="background:#f45c43;color:#fff;border-radius:50%;padding:1px 7px;font-size:12px;margin-left:4px;">0</span></button>
+      <button class="tab-btn" data-tab="table" onclick="switchTab('table')">📊 高度表</button>
+    </div>
+  </div>
+
+  <div id="practiceCard" class="card active">
+    <div class="setting-row">
+      <label>高度范围</label>
+      <select id="rangeSelect" onchange="updateRangeDisplay()">
+        <option value="all">所有高度层（45条）</option>
+        <option value="custom">自定义范围</option>
+        <option value="wrong">仅错题</option>
+      </select>
+    </div>
+    <div id="customRange" class="setting-row" style="display:none;">
+      <label>米制从</label>
+      <select id="minRange"></select>
+      <label>到</label>
+      <select id="maxRange"></select>
+    </div>
+    <div class="setting-row">
+      <label>题目顺序</label>
+      <select id="orderSelect">
+        <option value="sequential">顺序</option>
+        <option value="reverse">倒序</option>
+        <option value="random">乱序</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label>转换机制</label>
+      <select id="directionSelect">
+        <option value="m2f">米制 → 英尺</option>
+        <option value="f2m">英尺 → 米制</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label>练习模式</label>
+      <select id="modeSelect" onchange="updatePlayModeRow()">
+        <option value="input">填写题</option>
+        <option value="choice">选择题</option>
+        <option value="memory">听音记忆</option>
+      </select>
+    </div>
+    <div id="playModeRow" class="setting-row" style="display:none;">
+      <label>播放模式</label>
+      <select id="playModeSelect">
+        <option value="single">单次播放</option>
+        <option value="loop">循环播放</option>
+      </select>
+    </div>
+    <div id="speedRow" class="setting-row" style="display:none;">
+      <label>倍速</label>
+      <select id="speedSelect">
+        <option value="0.5">0.5x</option>
+        <option value="0.6">0.6x</option>
+        <option value="0.8">0.8x</option>
+        <option value="0.9">0.9x</option>
+        <option value="1.0" selected>1.0x</option>
+        <option value="1.2">1.2x</option>
+        <option value="1.5">1.5x</option>
+        <option value="1.7">1.7x</option>
+        <option value="2.0">2.0x</option>
+        <option value="2.2">2.2x</option>
+        <option value="2.5">2.5x</option>
+        <option value="2.7">2.7x</option>
+        <option value="3.0">3.0x</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="startPractice()" style="width:100%;padding:14px;font-size:16px;">🚀 开始练习</button>
+
+    <div id="practiceArea" class="practice-area" style="display:none;">
+      <div class="progress-info"><span id="progressText">0 / 0</span></div>
+      <div class="question" id="questionDisplay">600</div>
+      <div class="question-unit" id="questionUnit">米</div>
+      <div class="answer-input" id="inputArea">
+        <input type="number" id="answerInput" placeholder="输入对应数字" onkeydown="if(event.key==='Enter')checkAnswer()">
+        <button class="btn btn-success" id="checkBtn" onclick="checkAnswer()">提交</button>
+        <button class="btn btn-primary" id="nextBtn" style="display:none;" onclick="nextQuestion()">下一题 →</button>
+      </div>
+      <div class="choices" id="choicesContainer" style="display:none;"></div>
+      <div class="choice-nav" id="choiceNav" style="display:none;">
+        <button class="btn btn-primary" id="nextBtnChoice" onclick="nextQuestion()">下一题 →</button>
+      </div>
+      <div class="result" id="resultDisplay"></div>
+      <div class="stat-bar">
+        <span class="stat-item">✅ 正确: <strong id="correctCount">0</strong></span>
+        <span class="stat-item">❌ 错误: <strong id="wrongCount">0</strong></span>
+        <span class="stat-item">📊 正确率: <strong id="accuracyDisplay">0%</strong></span>
+      </div>
+    </div>
+
+    <div id="memoryArea" class="practice-area" style="display:none;">
+      <div class="memory-unit" id="memoryUnit">米 ↔ 英尺</div>
+      <div class="memory-controls">
+        <button class="btn btn-primary" id="memoryPlayBtn" onclick="toggleMemoryPlay()">▶ 播放</button>
+      </div>
+      <div class="progress-info"><span id="memoryProgress">0 / 0</span></div>
+    </div>
+  </div>
+
+  <div id="wrongCard" class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:18px;color:#fff;">❌ 错题记录</h2>
+      <button class="btn btn-sm btn-danger" onclick="clearAllWrong()">清空全部</button>
+    </div>
+    <div id="wrongList" class="wrong-list">
+      <div class="empty-msg">暂无错题记录</div>
+    </div>
+  </div>
+
+  <div id="tableCard" class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:18px;color:#fff;">📊 高度对照表</h2>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:20px;overflow-x:auto;">
+      <h3 style="text-align:center;font-size:18px;color:#1a1a2e;margin-bottom:6px;">中国民航飞行高度层对照表</h3>
+      <div style="text-align:center;margin-bottom:10px;">
+        <span style="font-size:13px;color:#666;">向西飞行 180°~359°T</span>
+        <span style="font-size:13px;color:#999;margin:0 16px;">|</span>
+        <span style="font-size:13px;color:#666;">000°~179°T 向东飞行</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr style="background:#2c3e6b;color:#fff;">
+            <th colspan="2" style="padding:8px;border:1px solid #ccc;">向西飞行</th>
+            <th colspan="2" style="padding:8px;border:1px solid #ccc;">向东飞行</th>
+          </tr>
+          <tr style="background:#3b5998;color:#fff;">
+            <th style="padding:6px;border:1px solid #ccc;">英尺(Feet)</th>
+            <th style="padding:6px;border:1px solid #ccc;">米(Meter)</th>
+            <th style="padding:6px;border:1px solid #ccc;">米(Meter)</th>
+            <th style="padding:6px;border:1px solid #ccc;">英尺(Feet)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">50900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">15500</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">14900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">48900</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">46900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">14300</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">13700</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">44900</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">43000</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">13100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">12500</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">41100</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">40100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">12200</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">11900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">39100</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">38100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">11600</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">11300</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">37100</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">36100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">11000</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">10700</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">35100</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">34100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">10400</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">10100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">33100</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">32100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">9800</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">9500</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">31100</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">30100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">9200</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">8900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">29100</td></tr>
+          <tr style="background:#c8d4e8;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">27600</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">8400</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">8100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">26600</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">25600</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">7800</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">7500</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">24600</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">23600</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">7200</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">6900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">22600</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">21700</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">6600</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">6300</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">20700</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">19700</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">6000</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">5700</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">18700</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">17700</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">5400</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">5100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">16700</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">15700</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">4800</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">4500</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">14800</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">13800</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">4200</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">3900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">12800</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">11800</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">3600</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">3300</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">10800</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">9800</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">3000</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">2700</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">8900</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">7900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">2400</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">2100</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">6900</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">5900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">1800</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">1500</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">4900</td></tr>
+          <tr style="background:#dce4f0;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">3900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">1200</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">900</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">3000</td></tr>
+          <tr style="background:#e8eef7;"><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;font-weight:bold;">2000</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">600</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">—</td><td style="padding:5px 10px;border:1px solid #ccc;text-align:center;">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DATA = [
+  { m: 600, f: 2000 }, { m: 900, f: 3000 }, { m: 1200, f: 3900 }, { m: 1500, f: 4900 },
+  { m: 1800, f: 5900 }, { m: 2100, f: 6900 }, { m: 2400, f: 7900 }, { m: 2700, f: 8900 },
+  { m: 3000, f: 9800 }, { m: 3300, f: 10800 }, { m: 3600, f: 11800 }, { m: 3900, f: 12800 },
+  { m: 4200, f: 13800 }, { m: 4500, f: 14800 }, { m: 4800, f: 15700 }, { m: 5100, f: 16700 },
+  { m: 5400, f: 17700 }, { m: 5700, f: 18700 }, { m: 6000, f: 19700 }, { m: 6300, f: 20700 },
+  { m: 6600, f: 21700 }, { m: 6900, f: 22600 }, { m: 7200, f: 23600 }, { m: 7500, f: 24600 },
+  { m: 7800, f: 25600 }, { m: 8100, f: 26600 }, { m: 8400, f: 27600 }, { m: 8900, f: 29100 },
+  { m: 9200, f: 30100 }, { m: 9500, f: 31100 }, { m: 9800, f: 32100 }, { m: 10100, f: 33100 },
+  { m: 10400, f: 34100 }, { m: 10700, f: 35100 }, { m: 11000, f: 36100 }, { m: 11300, f: 37100 },
+  { m: 11600, f: 38100 }, { m: 11900, f: 39100 }, { m: 12200, f: 40100 }, { m: 12500, f: 41100 },
+  { m: 13100, f: 43000 },
+  { m: 13700, f: 44900 },
+  { m: 14300, f: 46900 },
+  { m: 14900, f: 48900 },
+  { m: 15500, f: 50900 }
+];
+
+let currentUser = 'local';
+function getStorageKey() { return 'height_all_records'; }
+function loadRecords() {
+  try { return JSON.parse(localStorage.getItem(getStorageKey())) || []; } catch { return []; }
+}
+function saveRecords(records) {
+  localStorage.setItem(getStorageKey(), JSON.stringify(records));
+}
+function getWrongSet() {
+  return new Set(loadRecords().map(r => r.key));
+}
+
+function addWrongRecord(q, userAnswer) {
+  const records = loadRecords();
+  const key = q.m + '-' + q.f;
+  if (!records.some(r => r.key === key)) {
+    records.push({ key, m: q.m, f: q.f, userAnswer: String(userAnswer) });
+    saveRecords(records);
+    updateWrongBadge();
+  }
+}
+function removeWrongRecord(key) {
+  let records = loadRecords();
+  records = records.filter(r => r.key !== key);
+  saveRecords(records);
+  updateWrongBadge();
+  renderWrongList();
+}
+function clearAllWrong() {
+  if (!confirm('确定清空所有错题记录吗？')) return;
+  saveRecords([]);
+  updateWrongBadge();
+  renderWrongList();
+}
+function updateWrongBadge() {
+  document.getElementById('wrongBadge').textContent = loadRecords().length;
+}
+
+function switchTab(tab) {
+  stopMemory();
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
+  document.getElementById(tab + 'Card').classList.add('active');
+  if (tab === 'wrong') renderWrongList();
+}
+
+function renderWrongList() {
+  const records = loadRecords();
+  const container = document.getElementById('wrongList');
+  if (records.length === 0) {
+    container.innerHTML = '<div class="empty-msg">暂无错题记录</div>';
+    return;
+  }
+  container.innerHTML = '';
+  records.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'wrong-item';
+    div.innerHTML = '<div class="info">' + r.m + ' 米 ↔ ' + r.f + ' 英尺<span style="color:rgba(255,255,255,0.3);margin:0 8px;">|</span>你的答案：<span class="user-ans"></span></div><button class="btn btn-sm btn-outline">移除</button>';
+    div.querySelector('.user-ans').textContent = r.userAnswer;
+    div.querySelector('button').onclick = () => removeWrongRecord(r.key);
+    container.appendChild(div);
+  });
+}
+
+function getFilteredData() {
+  const range = document.getElementById('rangeSelect').value;
+  if (range === 'wrong') {
+    const wrongSet = getWrongSet();
+    return DATA.filter(d => wrongSet.has(d.m + '-' + d.f));
+  }
+  let filtered = DATA;
+  if (range === 'custom') {
+    const min = parseInt(document.getElementById('minRange').value, 10);
+    const max = parseInt(document.getElementById('maxRange').value, 10);
+    if (min > max) return [];
+    filtered = DATA.filter(d => d.m >= min && d.m <= max);
+  }
+  return filtered;
+}
+function updateRangeDisplay() {
+  document.getElementById('customRange').style.display = document.getElementById('rangeSelect').value === 'custom' ? 'flex' : 'none';
+}
+function updatePlayModeRow() {
+  const isMemory = document.getElementById('modeSelect').value === 'memory';
+  document.getElementById('playModeRow').style.display = isMemory ? '' : 'none';
+  document.getElementById('speedRow').style.display = isMemory ? '' : 'none';
+  if (!isMemory) {
+    document.getElementById('memoryArea').style.display = 'none';
+    window.speechSynthesis.cancel();
+    clearTimeout(memoryTimer);
+    memoryPlaying = false;
+    document.getElementById('memoryPlayBtn').textContent = '▶ 播放';
+  }
+}
+function initRangeSelects() {
+  const minEl = document.getElementById('minRange');
+  const maxEl = document.getElementById('maxRange');
+  const opts = DATA.map(d => d.m);
+  minEl.innerHTML = opts.map(v => `<option value="${v}"${v===600?' selected':''}>${v}</option>`).join('');
+  maxEl.innerHTML = opts.map(v => `<option value="${v}"${v===13100?' selected':''}>${v}</option>`).join('');
+  minEl.onchange = () => { if (parseInt(minEl.value, 10) > parseInt(maxEl.value, 10)) maxEl.value = minEl.value; };
+  maxEl.onchange = () => { if (parseInt(maxEl.value, 10) < parseInt(minEl.value, 10)) minEl.value = maxEl.value; };
+}
+
+const M_AV = {600:'六百',900:'九百',1200:'幺两',1500:'幺五',1800:'幺八',2100:'两幺',2400:'两四',2700:'两拐',3000:'三千',3300:'三三',3600:'三六',3900:'三九',4200:'四两',4500:'四五',4800:'四八',5100:'五幺',5400:'五四',5700:'五拐',6000:'六千',6300:'六三',6600:'六六',6900:'六九',7200:'拐两',7500:'拐五',7800:'拐八',8100:'八幺',8400:'八四',8900:'八九',9200:'九两',9500:'九五',9800:'九八',10100:'幺洞幺',10400:'幺洞四',10700:'幺洞拐',11000:'幺幺洞',11300:'幺幺三',11600:'幺幺六',11900:'幺幺九',12200:'幺两两',12500:'幺两五',13100:'幺三幺',13700:'幺三拐',14300:'幺四三',14900:'幺四九',15500:'幺五五'};
+const F_AV = {2000:'两千',3000:'三千',3900:'三九',4900:'四九',5900:'五九',6900:'六九',7900:'拐九',8900:'八九',9800:'九千八',10800:'幺洞八',11800:'幺幺八',12800:'幺两八',13800:'幺三八',14800:'幺四八',15700:'幺五拐',16700:'幺六拐',17700:'幺拐拐',18700:'幺八拐',19700:'幺九拐',20700:'两洞拐',21700:'两幺拐',22600:'两两六',23600:'两三六',24600:'两四六',25600:'两五六',26600:'两六六',27600:'两拐六',29100:'两九幺',30100:'三洞幺',31100:'三幺幺',32100:'三两幺',33100:'三三幺',34100:'三四幺',35100:'三五幺',36100:'三六幺',37100:'三拐幺',38100:'三八幺',39100:'三九幺',40100:'四洞幺',41100:'四幺幺',43000:'四三洞',44900:'四四九',46900:'四六九',48900:'四八九',50900:'五洞九'};
+function aviationText(num, isMeter) {
+  return isMeter ? M_AV[num] : F_AV[num] ?? num;
+}
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+let memoryTimer = null;
+let memoryPlaying = false;
+let memoryLoop = false;
+
+function startMemoryPlayback() {
+  const data = getFilteredData();
+  if (data.length === 0) { alert('没有符合条件的数据！'); return; }
+  direction = document.getElementById('directionSelect').value;
+  const order = document.getElementById('orderSelect').value;
+  memoryLoop = document.getElementById('playModeSelect').value === 'loop';
+  let items = data.map(d => ({ ...d }));
+  if (order === 'reverse') items.reverse();
+  else if (order === 'random') shuffleArray(items);
+  memoryItems = items; memoryIdx = 0; memoryPlaying = true;
+  document.getElementById('memoryPlayBtn').textContent = '⏸ 暂停';
+  document.getElementById('practiceArea').style.display = 'none';
+  document.getElementById('memoryArea').style.display = 'block';
+  playMemoryItem();
+}
+let memoryItems = [];
+let memoryIdx = 0;
+
+function playMemoryItem() {
+  if (!memoryPlaying) return;
+  if (memoryIdx >= memoryItems.length) {
+    if (memoryLoop) { memoryIdx = 0; }
+    else { stopMemory(); return; }
+  }
+  const d = memoryItems[memoryIdx];
+  const val = direction === 'm2f' ? d.m : d.f;
+  const target = direction === 'm2f' ? d.f : d.m;
+  const valPhonetic = aviationText(val, direction === 'm2f');
+  const targetPhonetic = aviationText(target, direction !== 'm2f');
+  const unit = direction === 'm2f' ? '米' : '英尺';
+  const targetUnit = direction === 'm2f' ? '英尺' : '米';
+  const phrase = `${valPhonetic}，${targetPhonetic}`;
+  document.getElementById('memoryUnit').textContent = `${val} ${unit} → ${target} ${targetUnit}`;
+  document.getElementById('memoryProgress').textContent = `${memoryIdx + 1} / ${memoryItems.length}`;
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(phrase);
+  u.lang = 'zh-CN'; u.rate = parseFloat(document.getElementById('speedSelect').value); u.volume = 1;
+  u.onend = () => {
+    if (!memoryPlaying) return;
+    memoryIdx++;
+    memoryTimer = setTimeout(playMemoryItem, 1500);
+  };
+  window.speechSynthesis.speak(u);
+}
+
+function toggleMemoryPlay() {
+  if (memoryPlaying) {
+    memoryPlaying = false;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    clearTimeout(memoryTimer);
+    document.getElementById('memoryPlayBtn').textContent = '▶ 播放';
+  } else {
+    memoryPlaying = true;
+    document.getElementById('memoryPlayBtn').textContent = '⏸ 暂停';
+    playMemoryItem();
+  }
+}
+
+function stopMemory() {
+  memoryPlaying = false;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  clearTimeout(memoryTimer);
+  document.getElementById('memoryArea').style.display = 'none';
+  document.getElementById('memoryPlayBtn').textContent = '▶ 播放';
+  document.getElementById('memoryUnit').textContent = '米 ↔ 英尺';
+  document.getElementById('memoryProgress').textContent = '0 / 0';
+}
+
+let questions = [];
+let currentIndex = 0;
+let correctTotal = 0;
+let wrongTotal = 0;
+let answered = false;
+let direction = 'm2f';
+let practiceMode = 'input';
+
+function startPractice() {
+  practiceMode = document.getElementById('modeSelect').value;
+  updatePlayModeRow();
+  if (practiceMode === 'memory') { startMemoryPlayback(); return; }
+  stopMemory();
+  document.getElementById('memoryArea').style.display = 'none';
+  let data = getFilteredData();
+  if (data.length === 0) { alert('没有符合条件的数据！'); return; }
+  direction = document.getElementById('directionSelect').value;
+  const order = document.getElementById('orderSelect').value;
+  questions = data;
+  if (order === 'reverse') questions.reverse();
+  else if (order === 'random') shuffleArray(questions);
+  currentIndex = 0; correctTotal = 0; wrongTotal = 0; answered = false;
+  updateStats();
+  document.getElementById('practiceArea').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  if (currentIndex >= questions.length) {
+    const el = document.getElementById('answerInput');
+    if (el) el.style.display = 'none';
+    document.getElementById('checkBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('choicesContainer').style.display = 'none';
+    document.getElementById('choiceNav').style.display = 'none';
+    document.getElementById('questionDisplay').textContent = '🎉 完成！';
+    document.getElementById('questionUnit').textContent = '所有题目已答完';
+    document.getElementById('resultDisplay').textContent = `正确 ${correctTotal} 题，错误 ${wrongTotal} 题，正确率 ${correctTotal + wrongTotal > 0 ? Math.round(correctTotal / (correctTotal + wrongTotal) * 100) : 0}%`;
+    document.getElementById('resultDisplay').className = 'result correct';
+    return;
+  }
+  const isChoice = practiceMode === 'choice';
+  document.getElementById('inputArea').style.display = isChoice ? 'none' : '';
+  document.getElementById('choicesContainer').style.display = isChoice ? '' : 'none';
+  document.getElementById('choiceNav').style.display = 'none';
+  const q = questions[currentIndex];
+  if (direction === 'm2f') {
+    document.getElementById('questionDisplay').textContent = q.m;
+    document.getElementById('questionUnit').textContent = '米 = ? 英尺';
+  } else {
+    document.getElementById('questionDisplay').textContent = q.f;
+    document.getElementById('questionUnit').textContent = '英尺 = ? 米';
+  }
+  document.getElementById('progressText').textContent = `${currentIndex + 1} / ${questions.length}`;
+  document.getElementById('resultDisplay').textContent = '';
+  document.getElementById('resultDisplay').className = 'result';
+  if (isChoice) {
+    renderChoices(q);
+  } else {
+    const input = document.getElementById('answerInput');
+    input.value = ''; input.className = ''; input.disabled = false; input.style.display = '';
+    document.getElementById('checkBtn').style.display = '';
+    document.getElementById('checkBtn').disabled = false;
+    document.getElementById('nextBtn').style.display = 'none';
+    answered = false; input.focus();
+  }
+}
+
+function renderChoices(q) {
+  const correctAns = direction === 'm2f' ? q.f : q.m;
+  const pool = questions.map(d => direction === 'm2f' ? d.f : d.m);
+  const poolValues = pool.filter(v => v !== correctAns);
+  shuffleArray(poolValues);
+  const distractors = poolValues.slice(0, 2);
+  const options = [correctAns, ...distractors];
+  shuffleArray(options);
+  answered = false;
+  const container = document.getElementById('choicesContainer');
+  container.innerHTML = '';
+  options.forEach(val => {
+    const btn = document.createElement('div');
+    btn.className = 'choice-btn'; btn.textContent = val; btn.dataset.value = val;
+    btn.onclick = () => onChoiceClick(btn, val, correctAns, q);
+    container.appendChild(btn);
+  });
+}
+
+function onChoiceClick(btn, val, correctAns, q) {
+  if (answered) return; answered = true;
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.add('no-hover'));
+  if (val === correctAns) {
+    btn.classList.add('correct-answer'); correctTotal++;
+    document.getElementById('resultDisplay').textContent = '✅ 正确！';
+    document.getElementById('resultDisplay').className = 'result correct';
+  } else {
+    btn.classList.add('wrong-answer');
+    document.querySelectorAll('.choice-btn').forEach(b => {
+      if (parseInt(b.dataset.value, 10) === correctAns) b.classList.add('correct-answer');
+    });
+    wrongTotal++; const unit = direction === 'm2f' ? '英尺' : '米';
+    document.getElementById('resultDisplay').innerHTML = `❌ 错误！正确答案是 <strong>${correctAns}</strong> ${unit}`;
+    document.getElementById('resultDisplay').className = 'result wrong';
+    addWrongRecord(q, val);
+  }
+  updateStats();
+  document.getElementById('choiceNav').style.display = '';
+  document.getElementById('nextBtnChoice').textContent = currentIndex + 1 >= questions.length ? '查看结果' : '下一题 →';
+}
+
+function checkAnswer() {
+  if (answered || currentIndex >= questions.length) return;
+  const input = document.getElementById('answerInput');
+  const userAns = parseInt(input.value, 10);
+  if (isNaN(userAns)) { alert('请输入数字'); return; }
+  const q = questions[currentIndex];
+  const correctAns = direction === 'm2f' ? q.f : q.m;
+  const isCorrect = userAns === correctAns;
+  answered = true; input.disabled = true;
+  document.getElementById('checkBtn').disabled = true;
+  if (isCorrect) {
+    correctTotal++; input.className = 'correct';
+    document.getElementById('resultDisplay').textContent = '✅ 正确！';
+    document.getElementById('resultDisplay').className = 'result correct';
+    document.getElementById('checkBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = '';
+    document.getElementById('nextBtn').textContent = '下一题 →';
+  } else {
+    wrongTotal++; input.className = 'wrong';
+    const unit = direction === 'm2f' ? '英尺' : '米';
+    document.getElementById('resultDisplay').innerHTML = `❌ 错误！正确答案是 <strong>${correctAns}</strong> ${unit}（你输入：${userAns}）`;
+    document.getElementById('resultDisplay').className = 'result wrong';
+    addWrongRecord(q, userAns);
+    document.getElementById('checkBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = '';
+    document.getElementById('nextBtn').textContent = '下一题 →';
+  }
+  updateStats();
+}
+
+function nextQuestion() {
+  if (currentIndex >= questions.length) return;
+  currentIndex++; showQuestion();
+}
+
+function updateStats() {
+  document.getElementById('correctCount').textContent = correctTotal;
+  document.getElementById('wrongCount').textContent = wrongTotal;
+  const total = correctTotal + wrongTotal;
+  document.getElementById('accuracyDisplay').textContent = total > 0 ? Math.round(correctTotal / total * 100) + '%' : '0%';
+}
+
+// 初始化
+updateRangeDisplay();
+updatePlayModeRow();
+initRangeSelects();
+updateWrongBadge();
+</script>
+</body>
+</html>
