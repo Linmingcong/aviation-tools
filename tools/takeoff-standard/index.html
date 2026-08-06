@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最低起飞标准交互式查询系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .table-header {
+            background-color: #f8fafc;
+        }
+        .result-success {
+            background-color: rgba(0, 200, 83, 0.1);
+            border-left: 4px solid #00c853;
+        }
+        .result-failure {
+            background-color: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid #f44336;
+        }
+        .result-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+        }
+        .section-title {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+        .content-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+        }
+         {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 bg-white">
+        <!-- 标题部分 -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-800">仪表飞行规则起飞最低标准</h1>
+            <p class="text-gray-600 mt-2">基于飞行运行总手册 24-2Y-FXYX-01-03</p>
+        </div>
+
+        <!-- 交互式查询系统 -->
+        <div class="content-section p-6 mb-8 bg-blue-50 shadow-md">
+            <h2 class="text-2xl font-bold mb-4 section-title text-blue-700">起飞最低标准查询系统</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- 输入表单 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">输入参数</h3>
+                    <form id="takeoffForm" class="space-y-4">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="flightType">飞机类型</label>
+                            <select id="flightType" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <option value="twin">双发飞机</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">RVR/能见度</label>
+                            <div class="flex flex-col space-y-2">
+                                <div class="flex items-center">
+                                    <input type="radio" id="useRVR" name="visibilityType" value="rvr" class="mr-2" checked>
+                                    <label for="useRVR" class="text-sm">使用RVR值</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="useVisibility" name="visibilityType" value="visibility" class="mr-2">
+                                    <label for="useVisibility" class="text-sm">使用能见度</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="rvrSection" class="mb-4">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2" for="tdzRVR">接地区RVR (米)</label>
+                                    <input id="tdzRVR" type="number" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="如:500" min="0">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2" for="midRVR">中间点RVR (米)</label>
+                                    <input id="midRVR" type="number" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="如:500" min="0">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2" for="stopEndRVR">停止端RVR (米)</label>
+                                    <input id="stopEndRVR" type="number" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="如:500" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="visibilitySection" class="mb-4 hidden">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="visibility">能见度 (米)</label>
+                            <input id="visibility" type="number" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="如:1600" min="0">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">时间</label>
+                            <div class="flex space-x-4">
+                                <div class="flex items-center">
+                                    <input type="radio" id="dayTime" name="timeOfDay" value="day" class="mr-2" checked>
+                                    <label for="dayTime" class="text-sm">白天</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="nightTime" name="timeOfDay" value="night" class="mr-2">
+                                    <label for="nightTime" class="text-sm">夜间</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">可用跑道设备 (可多选)</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="hirl" name="runwayEquipment" value="HIRL" class="mr-2">
+                                    <label for="hirl" class="text-sm">高强度跑道灯(HIRL)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="rcll" name="runwayEquipment" value="RCLL" class="mr-2">
+                                    <label for="rcll" class="text-sm">跑道中线灯(RCLL)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="redl" name="runwayEquipment" value="REDL" class="mr-2">
+                                    <label for="redl" class="text-sm">跑道边灯(REDL)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="rclm" name="runwayEquipment" value="RCLM" class="mr-2">
+                                    <label for="rclm" class="text-sm">跑道中线标志(RCLM)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="renl" name="runwayEquipment" value="RENL" class="mr-2">
+                                    <label for="renl" class="text-sm">跑道末端灯(RENL)</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="checkButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                            检查起飞最低标准
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- 结果显示 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">检查结果</h3>
+                    <div id="resultDisplay" class="p-4 min-h-48 border rounded-lg text-gray-800">
+                        <p class="text-gray-500 italic">请输入参数并点击"检查起飞最低标准"按钮</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标准内容展示部分 -->
+        <div class="content-section p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 section-title text-blue-700">5.3 仪表飞行规则起飞最低标准</h2>
+            
+            <div class="mb-6">
+                <p class="mb-4">本节的内容来源于《运行规范》C0015条和C0055条。执行本节规定的起飞最低标准时，对于特定跑道如果能够获得该跑道的跑道视程（RVR）报告，则在该跑道上的所有起飞都应当使用这些RVR值。基于RVR的所有起飞运行都必须使用沿跑道方向的RVR报告值。</p>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-3 text-blue-600">5.3.1 基本起飞最低标准</h3>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li>双发飞机的基本起飞最低标准为能见度1,600米（1英里）或RVR1,500米（5,000英尺）。</li>
+                    <li>如果机场未公布起飞最低标准，机长可使用本条5.3.1.1款规定的基本起飞最低标准或5.3.2条规定的较低的起飞最低标准。当使用基本的或更高的（更严格）起飞最低标准时，应以接地区的RVR报告为准。</li>
+                    <li>当公布的起飞最低标准高于相应的基本起飞最低标准且未制定备用程序（例如与飞机性能相符合的最小爬升梯度）时，则不得使用低于公布值的起飞最低标准。如能提供，应以接地区RVR报告为准。</li>
+                </ul>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-3 text-blue-600">5.3.2 低于基本起飞最低标准的运行</h3>
+                <p class="mb-4">机长和副驾驶必须在完成与本条运行有关的训练大纲的相应训练，并获得相应资格授权后，方可执行以下标准。</p>
+                
+                <div class="overflow-x-auto mb-6">
+                    <table class="min-w-full bg-white border">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="border p-2 text-left">最低RVR标准(m)</th>
+                                <th class="border p-2 text-left">最低跑道设备要求</th>
+                                <th class="border p-2 text-left">其他限制和规定</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border p-2">RVR200: TDZ/200;MID/200; Stop-end/200</td>
+                                <td class="border p-2">HIRL + RCLL</td>
+                                <td class="border p-2">昼夜</td>
+                            </tr>
+                            <tr>
+                                <td class="border p-2">RVR300: TDZ/300;MID/300; Stop-end/300</td>
+                                <td class="border p-2">(REDL+RCLM)/RCLL</td>
+                                <td class="border p-2">昼夜</td>
+                            </tr>
+                            <tr>
+                                <td class="border p-2">RVR400: TDZ/400;MID/400; Stop-end/400</td>
+                                <td class="border p-2">RCLM/REDL/RCLL</td>
+                                <td class="border p-2">昼间</td>
+                            </tr>
+                            <tr>
+                                <td class="border p-2">RVR400: TDZ/400;MID/400; Stop-end/400</td>
+                                <td class="border p-2">REDL/RCLL+RENL</td>
+                                <td class="border p-2">夜间</td>
+                            </tr>
+                            <tr>
+                                <td class="border p-2">RVR500: TDZ/500;MID/500; Stop-end/500</td>
+                                <td class="border p-2">RCLM/RCLL/REDL</td>
+                                <td class="border p-2">昼间</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <p class="mb-4">注：对于RVR 500米以下的运行：至少需要两个RVR测报，除了只提供咨询远端RVR，其它所有工作的RVR报告都是控制RVR，对于夜间运行，还要求跑道末端灯（RENL）可用。</p>
+                
+                <h4 class="text-lg font-semibold mb-2 text-blue-600">5.3.2.1 RVR报告</h4>
+                <p class="font-semibold">对于RVR 500米（含）以上的运行：</p>
+                <ul class="list-disc pl-6 space-y-1 mb-3">
+                    <li>接地区RVR报告（如可用）为控制RVR，对于能见度1600米以下的运行，除了只提供咨询的远端RVR，其它所有工作的RVR报告都是控制RVR；</li>
+                    <li>如果接地区RVR报告不可用时，中间点RVR报告可替代接地区RVR报告。</li>
+                </ul>
+                
+                <p class="font-semibold">对于RVR500米以下的运行：</p>
+                <ul class="list-disc pl-6 space-y-1 mb-3">
+                    <li>至少需要两个工作的RVR报告；</li>
+                    <li>所有可用的RVR为控制RVR。</li>
+                </ul>
+                
+                <p class="mb-4 italic text-sm">注：在少数极长的跑道上安装了4个RVR探测器：接地区（TDZ），中间点（MID），停止端（Stop-end）和远端（Far-end）。第4个远端RVR探测器报告值不作为控制RVR并且不能作为两个需要的RVR之一。</p>
+                
+                <h4 class="text-lg font-semibold mb-2 text-blue-600">5.3.2.2 跑道设备要求</h4>
+                <ul class="list-disc pl-6 space-y-4">
+                    <li>
+                        <p>接地区RVR 500米（开始起飞滑跑），至少一种下列目视辅助可用：</p>
+                        <ul class="list-circle pl-6 space-y-1">
+                            <li>可用的跑道中线标志（RCLM）；</li>
+                            <li>可用的跑道中线灯（RCLL）；</li>
+                            <li>跑道边灯（REDL）。</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p>接地区RVR400米（开始起飞滑跑），中间点RVR400米（如安装），停止端RVR400米。下列目视辅助设备之一可用：</p>
+                        <ul class="list-circle pl-6 space-y-1">
+                            <li>白天：跑道中线标志（RCLM）或跑道边灯（REDL）或跑道中线灯（RCLL）；</li>
+                            <li>夜晚：跑道边灯（REDL）或跑道中线灯（RCLL），同时跑道末端灯（RENL）也应工作。</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p>接地区RVR300米（开始起飞滑跑），中间点RVR300米（如安装），停止端RVR300米。下列目视辅助设备之一可用：</p>
+                        <ul class="list-circle pl-6 space-y-1">
+                            <li>跑道边灯（REDL）和跑道中线标志（RCLM）；</li>
+                            <li>跑道中线灯（RCLL）。</li>
+                        </ul>
+                        <p class="italic text-sm">注：对于夜间运行，还要求跑道末端灯（RENL）可用。</p>
+                    </li>
+                    <li>
+                        <p>接地区RVR 200米（开始起飞滑跑），中间点RVR 200米（如安装），停止端RVR 200米，下列所有目视辅助设备可用：</p>
+                        <ul class="list-circle pl-6 space-y-1">
+                            <li>高强度跑道灯（HIRL）；</li>
+                            <li>跑道中线灯（RCLL）。</li>
+                        </ul>
+                        <p class="italic text-sm">注：对于夜间运行，还要求跑道末端灯（RENL）可用。</p>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-3 text-blue-600">5.3.3 从备降机场起飞时的要求</h3>
+                <p>从备降机场起飞时，该机场的天气条件应当至少等于5.5节规定的备降机场的最低标准。</p>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-3 text-blue-600">5.3.4 在未列入《运行规范》C0039的机场起飞时</h3>
+                <p>应当符合下列条件：</p>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li>该机场和有关设施适合于该飞机运行</li>
+                    <li>驾驶员能遵守飞机运行适用的限制；</li>
+                    <li>飞机已按照正常使用机场的签派规则予以签派放行；</li>
+                    <li>该机场的天气条件等于或者高于该机场所在国政府批准的或者规定的起飞最低天气标准，如该机场没有批准的或者规定的标准时，则云高/能见度应等于或者高于240米/3,200米（800英尺/2英里），或者270米/2,400米（900英尺/1.5英里），或者300米/1,600米（1,000英尺/1英里）。</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 设备解释部分 -->
+        <div class="content-section p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 section-title text-blue-700">跑道设备名称解释</h2>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="p-3 border rounded bg-gray-50">
+                    <span class="font-bold">HIRL</span> - 高强度跑道灯
+                </div>
+                <div class="p-3 border rounded bg-gray-50">
+                    <span class="font-bold">RCLL</span> - 跑道中线灯
+                </div>
+                <div class="p-3 border rounded bg-gray-50">
+                    <span class="font-bold">REDL</span> - 跑道边灯
+                </div>
+                <div class="p-3 border rounded bg-gray-50">
+                    <span class="font-bold">RCLM</span> - 跑道中线标志
+                </div>
+                <div class="p-3 border rounded bg-gray-50">
+                    <span class="font-bold">RENL</span> - 跑道末端灯
+                </div>
+                <div class="p-3 border rounded bg-gray-50">
+                    <span class="font-bold">RVR</span> - 跑道视程
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="mt-8 pt-4 border-t text-center text-gray-500 text-sm">
+            <p>基于飞行运行总手册 24-2Y-FXYX-01-03 文档创建</p>
+            <p class="mt-1">© 2024 最低起飞标准交互式查询系统</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 处理RVR/能见度输入类型切换
+            const rvrRadio = document.getElementById('useRVR');
+            const visibilityRadio = document.getElementById('useVisibility');
+            const rvrSection = document.getElementById('rvrSection');
+            const visibilitySection = document.getElementById('visibilitySection');
+            
+            rvrRadio.addEventListener('change', function() {
+                if(this.checked) {
+                    rvrSection.classList.remove('hidden');
+                    visibilitySection.classList.add('hidden');
+                }
+            });
+            
+            visibilityRadio.addEventListener('change', function() {
+                if(this.checked) {
+                    rvrSection.classList.add('hidden');
+                    visibilitySection.classList.remove('hidden');
+                }
+            });
+            
+            // 检查按钮事件处理
+            document.getElementById('checkButton').addEventListener('click', function() {
+                checkTakeoffMinimums();
+            });
+            
+            function checkTakeoffMinimums() {
+                const resultDisplay = document.getElementById('resultDisplay');
+                const visibilityType = document.querySelector('input[name="visibilityType"]:checked').value;
+                const timeOfDay = document.querySelector('input[name="timeOfDay"]:checked').value;
+                
+                // 获取选中的跑道设备
+                const selectedEquipment = [];
+                document.querySelectorAll('input[name="runwayEquipment"]:checked').forEach(function(checkbox) {
+                    selectedEquipment.push(checkbox.value);
+                });
+                
+                let result = "";
+                let isSuccess = false;
+                let isWarning = false;
+                
+                // 处理RVR情况
+                if (visibilityType === 'rvr') {
+                    const tdzRVR = parseInt(document.getElementById('tdzRVR').value) || 0;
+                    const midRVR = parseInt(document.getElementById('midRVR').value) || 0;
+                    const stopEndRVR = parseInt(document.getElementById('stopEndRVR').value) || 0;
+                    
+                    // 验证输入
+                    if (tdzRVR <= 0) {
+                        result = "请输入有效的接地区RVR值。";
+                    } else {
+                        // 基本起飞最低标准检查
+                        if (tdzRVR >= 1500) {
+                            result = `<p class="font-bold">符合基本起飞最低标准</p>
+                                      <p>接地区RVR ${tdzRVR}米 >= 1500米，符合双发飞机的基本起飞最低标准。</p>`;
+                            isSuccess = true;
+                        } 
+                        // 低于基本起飞最低标准的特殊情况检查
+                        else {
+                            // RVR500米以下至少需要两个RVR报告
+                            if (tdzRVR < 500 && (!midRVR || !stopEndRVR)) {
+                                result = `<p class="font-bold">不符合起飞标准</p>
+                                          <p>当接地区RVR低于500米时(当前${tdzRVR}米)，至少需要两个工作的RVR报告。</p>
+                                          <p>请确保输入了中间点RVR和停止端RVR值。</p>`;
+                            } else {
+                                // 根据不同RVR范围和设备要求进行检查
+                                if (tdzRVR >= 500) {
+                                    // RVR500米检查
+                                    if (timeOfDay === 'day') {
+                                        // 白天RVR500
+                                        if (selectedEquipment.includes('RCLM') || 
+                                            selectedEquipment.includes('RCLL') || 
+                                            selectedEquipment.includes('REDL')) {
+                                            result = `<p class="font-bold">符合低于基本起飞最低标准的特殊条件</p>
+                                                      <p>接地区RVR ${tdzRVR}米 >= 500米，且白天运行，且有以下设备之一：${selectedEquipment.join('、')}</p>`;
+                                            isSuccess = true;
+                                        } else {
+                                            result = `<p class="font-bold">不符合起飞标准</p>
+                                                      <p>接地区RVR ${tdzRVR}米，白天运行，需要至少一种以下设备：RCLM、RCLL或REDL</p>`;
+                                        }
+                                    } else {
+                                        // 夜间RVR500 - 文档中没有明确，使用RVR400夜间标准
+                                        if ((selectedEquipment.includes('REDL') || selectedEquipment.includes('RCLL')) && 
+                                            selectedEquipment.includes('RENL')) {
+                                            result = `<p class="font-bold">符合低于基本起飞最低标准的特殊条件</p>
+                                                      <p>接地区RVR ${tdzRVR}米 >= 500米，且夜间运行，且有REDL或RCLL，以及RENL</p>`;
+                                            isSuccess = true;
+                                        } else {
+                                            result = `<p class="font-bold">不符合起飞标准</p>
+                                                      <p>接地区RVR ${tdzRVR}米，夜间运行，需要REDL或RCLL，以及RENL</p>`;
+                                        }
+                                    }
+                                } 
+                                else if (tdzRVR >= 400) {
+                                    // RVR400米检查
+                                    if (timeOfDay === 'day') {
+                                        // 白天RVR400
+                                        if (selectedEquipment.includes('RCLM') || 
+                                            selectedEquipment.includes('REDL') || 
+                                            selectedEquipment.includes('RCLL')) {
+                                            result = `<p class="font-bold">符合低于基本起飞最低标准的特殊条件</p>
+                                                      <p>接地区RVR ${tdzRVR}米 >= 400米，且白天运行，且有以下设备之一：${selectedEquipment.join('、')}</p>`;
+                                            isSuccess = true;
+                                        } else {
+                                            result = `<p class="font-bold">不符合起飞标准</p>
+                                                      <p>接地区RVR ${tdzRVR}米，白天运行，需要至少一种以下设备：RCLM、REDL或RCLL</p>`;
+                                        }
+                                    } else {
+                                        // 夜间RVR400
+                                        if ((selectedEquipment.includes('REDL') || selectedEquipment.includes('RCLL')) && 
+                                            selectedEquipment.includes('RENL')) {
+                                            result = `<p class="font-bold">符合低于基本起飞最低标准的特殊条件</p>
+                                                      <p>接地区RVR ${tdzRVR}米 >= 400米，且夜间运行，且有REDL或RCLL，以及RENL</p>`;
+                                            isSuccess = true;
+                                        } else {
+                                            result = `<p class="font-bold">不符合起飞标准</p>
+                                                      <p>接地区RVR ${tdzRVR}米，夜间运行，需要REDL或RCLL，以及RENL</p>`;
+                                        }
+                                    }
+                                }
+                                else if (tdzRVR >= 300) {
+                                    // RVR300米检查
+                                    if ((selectedEquipment.includes('REDL') && selectedEquipment.includes('RCLM')) || 
+                                        selectedEquipment.includes('RCLL')) {
+                                        
+                                        if (timeOfDay === 'night' && !selectedEquipment.includes('RENL')) {
+                                            result = `<p class="font-bold">不符合起飞标准</p>
+                                                      <p>接地区RVR ${tdzRVR}米，夜间运行，需要REDL和RCLM，或RCLL，以及必须有RENL</p>`;
+                                        } else {
+                                            result = `<p class="font-bold">符合低于基本起飞最低标准的特殊条件</p>
+                                                      <p>接地区RVR ${tdzRVR}米 >= 300米，且有REDL和RCLM，或有RCLL</p>`;
+                                            if (timeOfDay === 'night') {
+                                                result += `<p>夜间运行时有RENL</p>`;
+                                            }
+                                            isSuccess = true;
+                                        }
+                                    } else {
+                                        result = `<p class="font-bold">不符合起飞标准</p>
+                                                  <p>接地区RVR ${tdzRVR}米，需要REDL和RCLM，或RCLL</p>`;
+                                        if (timeOfDay === 'night') {
+                                            result += `<p>夜间运行还需要RENL</p>`;
+                                        }
+                                    }
+                                }
+                                else if (tdzRVR >= 200) {
+                                    // RVR200米检查
+                                    if (selectedEquipment.includes('HIRL') && selectedEquipment.includes('RCLL')) {
+                                        if (timeOfDay === 'night' && !selectedEquipment.includes('RENL')) {
+                                            result = `<p class="font-bold">不符合起飞标准</p>
+                                                      <p>接地区RVR ${tdzRVR}米，夜间运行，需要HIRL和RCLL，以及必须有RENL</p>`;
+                                        } else {
+                                            result = `<p class="font-bold">符合低于基本起飞最低标准的特殊条件</p>
+                                                      <p>接地区RVR ${tdzRVR}米 >= 200米，且有HIRL和RCLL</p>`;
+                                            if (timeOfDay === 'night') {
+                                                result += `<p>夜间运行时有RENL</p>`;
+                                            }
+                                            isSuccess = true;
+                                        }
+                                    } else {
+                                        result = `<p class="font-bold">不符合起飞标准</p>
+                                                  <p>接地区RVR ${tdzRVR}米，需要HIRL和RCLL</p>`;
+                                        if (timeOfDay === 'night') {
+                                            result += `<p>夜间运行还需要RENL</p>`;
+                                        }
+                                    }
+                                }
+                                else {
+                                    result = `<p class="font-bold">不符合起飞标准</p>
+                                              <p>接地区RVR ${tdzRVR}米 < 200米，低于最低起飞标准。</p>`;
+                                }
+                            }
+                        }
+                    }
+                } 
+                // 处理能见度情况
+                else {
+                    const visibility = parseInt(document.getElementById('visibility').value) || 0;
+                    
+                    // 验证输入
+                    if (visibility <= 0) {
+                        result = "请输入有效的能见度值。";
+                    } else {
+                        // 基本起飞最低标准检查
+                        if (visibility >= 1600) {
+                            result = `<p class="font-bold">符合基本起飞最低标准</p>
+                                      <p>能见度 ${visibility}米 >= 1600米，符合双发飞机的基本起飞最低标准。</p>`;
+                            isSuccess = true;
+                        } else {
+                            result = `<p class="font-bold">不符合基本起飞最低标准</p>
+                                      <p>能见度 ${visibility}米 < 1600米，低于基本起飞最低标准。</p>
+                                      <p>建议使用RVR值进行更细致的判断。</p>`;
+                            isWarning = true;
+                        }
+                    }
+                }
+                
+                // 清除之前的样式类
+                resultDisplay.classList.remove('result-success', 'result-failure', 'result-warning');
+                
+                // 添加新的样式类
+                if (isSuccess) {
+                    resultDisplay.classList.add('result-success');
+                } else if (isWarning) {
+                    resultDisplay.classList.add('result-warning');
+                } else {
+                    resultDisplay.classList.add('result-failure');
+                }
+                
+                // 更新结果显示
+                resultDisplay.innerHTML = result;
+            }
+        });
+    </script>
+</body>
+</html>
