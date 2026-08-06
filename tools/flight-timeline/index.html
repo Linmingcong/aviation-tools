@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航班执行流程时间轴</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f0f4f8;
+            color: #2d3748;
+        }
+        
+        .timeline-container {
+            position: relative;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: calc(100% - 60px);
+            background: linear-gradient(to bottom, #3b82f6, #1e40af);
+            top: 30px;
+            z-index: 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+        }
+        
+        .checklist-item {
+            transition: background-color 0.2s;
+        }
+        
+        .checklist-item:hover {
+            background-color: #e5edff;
+        }
+        
+        .phase-card {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .phase-card:after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+        }
+        
+        .phase-card-left:after {
+            top: 30px;
+            border-left-color: white;
+            margin-left: 15px;
+        }
+        
+        .phase-card-right:after {
+            top: 30px;
+            border-right-color: white;
+            left: auto;
+            right: 50%;
+            margin-right: 15px;
+        }
+        
+        .section-header {
+            background: linear-gradient(90deg, #2563eb, #1e40af);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .airplane-icon {
+            animation: fly 5s infinite ease-in-out;
+            transform-origin: center;
+        }
+        
+        @keyframes fly {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        
+        .cloud {
+            position: absolute;
+            opacity: 0.7;
+            animation: float 20s infinite linear;
+        }
+        
+        .cloud-1 {
+            top: 10%;
+            animation-duration: 35s;
+            animation-delay: 0s;
+        }
+        
+        .cloud-2 {
+            top: 30%;
+            animation-duration: 45s;
+            animation-delay: 5s;
+        }
+        
+        .cloud-3 {
+            top: 60%;
+            animation-duration: 40s;
+            animation-delay: 10s;
+        }
+        
+        @keyframes float {
+            0% { left: -10%; }
+            100% { left: 110%; }
+        }
+        
+        .checklist-content {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
+        
+        .checklist-content.active {
+            max-height: 2000px;
+            opacity: 1;
+        }
+        
+        .toggle-icon {
+            transition: transform 0.3s;
+        }
+        
+        .rotate-icon {
+            transform: rotate(180deg);
+        }
+        
+        /* 打印优化 */
+         {
+            body {
+                background-color: white;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .container {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .phase-card {
+                break-inside: avoid;
+                box-shadow: none !important;
+                border: 1px solid #e2e8f0;
+            }
+            
+            .checklist-content {
+                max-height: none !important;
+                opacity: 1 !important;
+            }
+            
+            .cloud {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+    <!-- 背景云 -->
+    <div class="fixed w-full h-full pointer-events-none z-0 overflow-hidden">
+        <div class="cloud cloud-1 w-32 h-20">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="#e2e8f0"><path d="M575.4 325.7c68.1-18.5 100.6-87.9 72.5-149.2s-94-85.2-158.6-60.6C472.1 46.4 403 8 320 8 215.2 8 128 81.6 128 176c0 12.2 1.6 24 4.1 35.8C68.5 232.9 16 300.1 16 384c0 88.4 71.6 160 160 160h336c79.5 0 144-64.5 144-144 0-36.7-13.8-70.1-36.3-95.7-8.9-10.2-19.1-19.2-30.5-26.7-16.5-10.9-36.4-18.1-58-19.9z"/></svg>
+        </div>
+        <div class="cloud cloud-2 w-40 h-24">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="#e2e8f0"><path d="M575.4 325.7c68.1-18.5 100.6-87.9 72.5-149.2s-94-85.2-158.6-60.6C472.1 46.4 403 8 320 8 215.2 8 128 81.6 128 176c0 12.2 1.6 24 4.1 35.8C68.5 232.9 16 300.1 16 384c0 88.4 71.6 160 160 160h336c79.5 0 144-64.5 144-144 0-36.7-13.8-70.1-36.3-95.7-8.9-10.2-19.1-19.2-30.5-26.7-16.5-10.9-36.4-18.1-58-19.9z"/></svg>
+        </div>
+        <div class="cloud cloud-3 w-36 h-22">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="#e2e8f0"><path d="M575.4 325.7c68.1-18.5 100.6-87.9 72.5-149.2s-94-85.2-158.6-60.6C472.1 46.4 403 8 320 8 215.2 8 128 81.6 128 176c0 12.2 1.6 24 4.1 35.8C68.5 232.9 16 300.1 16 384c0 88.4 71.6 160 160 160h336c79.5 0 144-64.5 144-144 0-36.7-13.8-70.1-36.3-95.7-8.9-10.2-19.1-19.2-30.5-26.7-16.5-10.9-36.4-18.1-58-19.9z"/></svg>
+        </div>
+    </div>
+    
+    <div class="container mx-auto px-4 py-8 relative">
+        <!-- 标题 -->
+        <div class="text-center mb-12 relative">
+            <div class="flex justify-center items-center mb-4">
+                <div class="airplane-icon w-16 h-16 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="#3b82f6"><path d="M482.3 192c34.2 0 93.7 29 93.7 64c0 36-59.5 64-93.7 64l-116.6 0L265.2 495.9c-5.7 10-16.3 16.1-27.8 16.1l-56.2 0c-10.6 0-18.3-10.2-15.4-20.4l49-171.6L112 320 68.8 377.6c-3 4-7.8 6.4-12.8 6.4l-42 0c-7.8 0-14-6.3-14-14c0-1.3 .2-2.6 .5-3.9L32 256 .5 145.9c-.4-1.3-.5-2.6-.5-3.9c0-7.8 6.3-14 14-14l42 0c5 0 9.8 2.4 12.8 6.4L112 192l102.9 0-49-171.6C162.9 10.2 170.6 0 181.2 0l56.2 0c11.5 0 22.1 6.2 27.8 16.1L365.7 192l116.6 0z"/></svg>
+                </div>
+                <h1 class="text-4xl font-bold text-blue-800">航班执行流程时间轴</h1>
+            </div>
+            <p class="text-lg text-gray-600">完整飞行任务流程与清单</p>
+        </div>
+        
+        <!-- 时间轴容器 -->
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            
+            <!-- 阶段1: 预先准备阶段 -->
+            <div class="timeline-item flex justify-between items-start mb-20">
+                <div class="timeline-marker">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                
+                <div class="phase-card phase-card-left w-5/12 bg-white rounded-lg shadow-lg p-0">
+                    <div class="section-header p-4 font-bold text-xl">
+                        <i class="fas fa-hourglass-start mr-2"></i>预先准备阶段
+                    </div>
+                    
+                    <div class="p-5">
+                        <div class="mb-6">
+                            <div class="checklist-header cursor-pointer flex justify-between items-center p-3 bg-blue-50 rounded-lg" onclick="toggleChecklist(this)">
+                                <h3 class="font-bold text-blue-700"><i class="fas fa-tasks mr-2"></i>任务清单</h3>
+                                <span class="toggle-icon text-blue-700"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="checklist-content mt-2 px-3">
+                                <ul class="list-none">
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>网上准备（发截图）
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>视频准备
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>运行提醒会（一月一次）
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>个人装备（见清单）
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>定闹钟
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="checklist-header cursor-pointer flex justify-between items-center p-3 bg-blue-50 rounded-lg" onclick="toggleChecklist(this)">
+                                <h3 class="font-bold text-blue-700"><i class="fas fa-suitcase mr-2"></i>个人物品清单</h3>
+                                <span class="toggle-icon text-blue-700"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="checklist-content mt-2 px-3">
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-gray-700 mb-2"><i class="fas fa-user mr-2"></i>身上物品</h4>
+                                    <ul class="list-none grid grid-cols-2 gap-2">
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>登机牌
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>领带
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>肩章
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>笔
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>皮带
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>帽子
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>手机
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>音乐耳机
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>手表
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-gray-700 mb-2"><i class="fas fa-briefcase mr-2"></i>上班清单</h4>
+                                    <ul class="list-none grid grid-cols-2 gap-2">
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>电脑
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>鼠标
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>充电线
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>车钥匙
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>耳机
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-gray-700 mb-2"><i class="fas fa-luggage-cart mr-2"></i>飞行箱</h4>
+                                    <ul class="list-none grid grid-cols-2 gap-2">
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>茶杯
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>反光背心
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>充电包
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>EFB/检查电量
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>耳机
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>手电
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>太阳镜
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>眼镜
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-gray-700 mb-2"><i class="fas fa-door-open mr-2"></i>出门清单</h4>
+                                    <ul class="list-none grid grid-cols-2 gap-2">
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>牙签
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>白砂糖
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>手套
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>纸巾
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>湿纸巾
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-gray-700 mb-2"><i class="fas fa-bed mr-2"></i>睡前清单</h4>
+                                    <ul class="list-none grid grid-cols-2 gap-2">
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>充电 (EFB、手机)
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>收拾飞行箱
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>收拾上班用品
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>检查电器(空调、灯)
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>准备明早早餐
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>准备明天的装备
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>定闹钟
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checklist-header cursor-pointer flex justify-between items-center p-3 bg-blue-50 rounded-lg" onclick="toggleChecklist(this)">
+                                <h3 class="font-bold text-blue-700"><i class="fas fa-suitcase-rolling mr-2"></i>过夜袋清单</h3>
+                                <span class="toggle-icon text-blue-700"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="checklist-content mt-2 px-3">
+                                <ul class="list-none grid grid-cols-2 gap-2">
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>外套
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>内衣内裤
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>剃须刀
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>毛巾
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>干纸巾
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>消毒湿巾
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>饮用水
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>虫虫餐具
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>车钥匙
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>手机
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="w-5/12"></div>
+            </div>
+            
+            <!-- 阶段2: 飞行前直接准备阶段 -->
+            <div class="timeline-item flex justify-between items-start mb-20">
+                <div class="timeline-marker">
+                    <i class="fas fa-plane-departure"></i>
+                </div>
+                
+                <div class="w-5/12"></div>
+                
+                <div class="phase-card phase-card-right w-5/12 bg-white rounded-lg shadow-lg p-0">
+                    <div class="section-header p-4 font-bold text-xl">
+                        <i class="fas fa-clipboard-check mr-2"></i>飞行前直接准备阶段
+                    </div>
+                    
+                    <div class="p-5">
+                        <div class="mb-6">
+                            <div class="checklist-header cursor-pointer flex justify-between items-center p-3 bg-blue-50 rounded-lg" onclick="toggleChecklist(this)">
+                                <h3 class="font-bold text-blue-700"><i class="fas fa-tasks mr-2"></i>任务清单</h3>
+                                <span class="toggle-icon text-blue-700"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="checklist-content mt-2 px-3">
+                                <ul class="list-none">
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>签到
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>直接准备
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>护照
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>放行资料签字
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>协同
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>飞行前准备
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>加油
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>检查飞机
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>放行签字
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>电子舱单签字
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>电子油单签字
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>填绕机本
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>预约登机
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checklist-header cursor-pointer flex justify-between items-center p-3 bg-blue-50 rounded-lg" onclick="toggleChecklist(this)">
+                                <h3 class="font-bold text-blue-700"><i class="fas fa-users mr-2"></i>协同事项</h3>
+                                <span class="toggle-icon text-blue-700"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="checklist-content mt-2 px-3">
+                                <ul class="list-none">
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>航班号
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>机型
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>飞机号
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>飞行时间
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>滑行时间
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>备降场
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>故障保留
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>温度
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>颠簸
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>燃油：吨
+                                    </li>
+                                </ul>
+                                
+                                <div class="mt-4">
+                                    <h4 class="font-semibold text-gray-700 mb-2">需协同的详细信息</h4>
+                                    <ul class="list-none">
+                                        <li class="checklist-item p-2 border-b border-gray-100">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>执飞机型、飞行时间、滑行时间、备降场信息
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>影响客舱的故障保留
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>起飞、目的地机场及航路天气
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>航路颠簸协同及处置预案（颠簸强度及发生时间、驾驶舱/客舱沟通信号、中度及严重颠簸的特殊飞行操作）
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>进出驾驶舱程序（正常进出、需使用密码的情况）
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>反劫机程序及明语暗语
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>PED应急预案
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>紧急情况时驾驶舱与客舱之间沟通方法与信号（飞机故障，机组失能，客舱遇险，客舱通信失效）
+                                        </li>
+                                        <li class="checklist-item p-2 border-b border-gray-100">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>紧急情况下的警戒、撤离口令和发布方式（中断起飞、紧急下降、撤离）
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 阶段3: 飞行日-过站阶段 -->
+            <div class="timeline-item flex justify-between items-start mb-20">
+                <div class="timeline-marker">
+                    <i class="fas fa-plane"></i>
+                </div>
+                
+                <div class="phase-card phase-card-left w-5/12 bg-white rounded-lg shadow-lg p-0">
+                    <div class="section-header p-4 font-bold text-xl">
+                        <i class="fas fa-route mr-2"></i>飞行日-过站阶段
+                    </div>
+                    
+                    <div class="p-5">
+                        <div class="mb-6">
+                            <div class="checklist-header cursor-pointer flex justify-between items-center p-3 bg-blue-50 rounded-lg" onclick="toggleChecklist(this)">
+                                <h3 class="font-bold text-blue-700"><i class="fas fa-tasks mr-2"></i>任务清单</h3>
+                                <span class="toggle-icon text-blue-700"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="checklist-content mt-2 px-3">
+                                <ul class="list-none">
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>放行签字
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>预约登机
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>和乘务组协同
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>检查飞机
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>驾驶舱准备
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>FLB和绕机本签字
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>电子舱单（如有）
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>电子油单
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>确认任务书
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checklist-header cursor-pointer flex justify-between items-center p-3 bg-blue-50 rounded-lg" onclick="toggleChecklist(this)">
+                                <h3 class="font-bold text-blue-700"><i class="fas fa-exclamation-triangle mr-2"></i>重点注意事项</h3>
+                                <span class="toggle-icon text-blue-700"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="checklist-content mt-2 px-3">
+                                <div class="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                                    <h4 class="font-semibold text-yellow-700 mb-2">过站协同要点</h4>
+                                    <ul class="list-disc pl-5 text-yellow-700">
+                                        <li>重点关注航路天气变化</li>
+                                        <li>飞机可能存在的故障情况</li>
+                                        <li>燃油情况确认</li>
+                                        <li>与目的地联络确认特殊情况</li>
+                                        <li>确认驾驶舱和客舱准备情况</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400 mt-4">
+                                    <h4 class="font-semibold text-blue-700 mb-2">飞行期间注意事项</h4>
+                                    <ul class="list-disc pl-5 text-blue-700">
+                                        <li>严格执行飞行规程程序</li>
+                                        <li>持续关注天气变化</li>
+                                        <li>与乘务组定期沟通</li>
+                                        <li>燃油管理</li>
+                                        <li>遵守高度层指令</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="w-5/12"></div>
+            </div>
+            
+            <!-- 阶段4: 飞行讲评阶段 -->
+            <div class="timeline-item flex justify-between items-start">
+                <div class="timeline-marker">
+                    <i class="fas fa-plane-arrival"></i>
+                </div>
+                
+                <div class="w-5/12"></div>
+                
+                <div class="phase-card phase-card-right w-5/12 bg-white rounded-lg shadow-lg p-0">
+                    <div class="section-header p-4 font-bold text-xl">
+                        <i class="fas fa-flag-checkered mr-2"></i>飞行讲评阶段
+                    </div>
+                    
+                    <div class="p-5">
+                        <div class="mb-6">
+                            <div class="checklist-header cursor-pointer flex justify-between items-center p-3 bg-blue-50 rounded-lg" onclick="toggleChecklist(this)">
+                                <h3 class="font-bold text-blue-700"><i class="fas fa-tasks mr-2"></i>任务清单</h3>
+                                <span class="toggle-icon text-blue-700"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="checklist-content mt-2 px-3">
+                                <ul class="list-none">
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>云执照
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>电子任务书
+                                    </li>
+                                    <li class="checklist-item p-2 border-b border-gray-100 flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>交还证件
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checklist-header cursor-pointer flex justify-between items-center p-3 bg-blue-50 rounded-lg" onclick="toggleChecklist(this)">
+                                <h3 class="font-bold text-blue-700"><i class="fas fa-comments mr-2"></i>讲评要点</h3>
+                                <span class="toggle-icon text-blue-700"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                            <div class="checklist-content mt-2 px-3">
+                                <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-400">
+                                    <h4 class="font-semibold text-green-700 mb-2">飞行讲评重点</h4>
+                                    <ul class="list-disc pl-5 text-green-700">
+                                        <li>飞行过程中的异常情况处理</li>
+                                        <li>特殊天气条件下的飞行经验</li>
+                                        <li>安全管理相关事项</li>
+                                        <li>机组协作情况</li>
+                                        <li>改进和提高建议</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-400 mt-4">
+                                    <h4 class="font-semibold text-indigo-700 mb-2">任务完成后核对</h4>
+                                    <ul class="list-disc pl-5 text-indigo-700">
+                                        <li>确认所有文件已完成签署</li>
+                                        <li>电子系统中的记录已更新</li>
+                                        <li>所有个人物品已清点</li>
+                                        <li>飞行记录已归档</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部 -->
+        <div class="mt-16 text-center text-gray-500">
+            <p>© 航班执行流程时间轴 | 优化设计用于飞行任务管理</p>
+        </div>
+    </div>
+    
+    <script>
+        function toggleChecklist(element) {
+            const content = element.nextElementSibling;
+            content.classList.toggle('active');
+            
+            const icon = element.querySelector('.toggle-icon i');
+            icon.classList.toggle('rotate-icon');
+            
+            // 初始展开第一个清单
+            window.addEventListener('load', function() {
+                const firstChecklistHeaders = document.querySelectorAll('.checklist-header');
+                if (firstChecklistHeaders.length > 0) {
+                    for (let i = 0; i < firstChecklistHeaders.length; i++) {
+                        const header = firstChecklistHeaders[i];
+                        toggleChecklist(header);
+                    }
+                }
+            });
+        }
+        
+        // 初始展开每个阶段的第一个清单
+        document.addEventListener('DOMContentLoaded', function() {
+            const phaseCards = document.querySelectorAll('.phase-card');
+            phaseCards.forEach(card => {
+                const firstChecklist = card.querySelector('.checklist-header');
+                if (firstChecklist) {
+                    toggleChecklist(firstChecklist);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDrnR3ihXlXYDpQFFpgqMUNVshmPQSxtKCwN2khVo9iJ8mWK0n5L3%2Bt8pbaECuTMu%2FmXFZzdnX7ww59CcV4WwO13rc76V%2BP1R%2Bpn0lhOcY1LAascSWt%2BibQX6Jw6FjKqrSC6lXdzB0UZm1iuTgwXefi6VhHceT%2Bpd%2B5luMe6Ke0sXb%2BEsq4%2BraMVBEcnGTBQNwcm60pDCG9FkQm8Mrf8zo2OHCyjQ4Hs9lraKqefCDCrohkIcP8uAO8ifz8i2P8%2BKT9L80Nem6OvZBWp1%2FOwQygdi70ZuRs8q2lXsZnRAiutdTZH3Be8kMnfu80sol1hBUIJym4riQMAQrq8FNtDLwpy%2FOaPykFsPpIz%2BWHcsDz8XhXJYA6nkWE%2FDhvnva0xk6Zn2N4P4h2waaKSH5f4YUXn%2Fil8BujVCeUmvroT68znZqNsQoKk93AF9EyGDRHYLuupOj74iUfwlbh8u73WIP%2BDBWe35ZB33uEDzVqPlOGjhoWCpgn7HcrV8tON9GX%2FPBePLR6sabxnaUwknZt6bMUuqoQDLRawzxZAamNm%2FlzCdATkTmuexlZk7KiqkerPXZvvga1%2FYqr7ZE4dDcSXfbm8%3D";
+        window.__genspark_locale = "zh-CN";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDrnR3ihXlXYDpQFFpgqMUNVshmPQSxtKCwN2khVo9iJ8mWK0n5L3+t8pbaECuTMu/mXFZzdnX7ww59CcV4WwO13rc76V+P1R+pn0lhOcY1LAascSWt+ibQX6Jw6FjKqrSC6lXdzB0UZm1iuTgwXefi6VhHceT+pd+5luMe6Ke0sXb+Esq4+raMVBEcnGTBQNwcm60pDCG9FkQm8Mrf8zo2OHCyjQ4Hs9lraKqefCDCrohkIcP8uAO8ifz8i2P8+KT9L80Nem6OvZBWp1/OwQygdi70ZuRs8q2lXsZnRAiutdTZH3Be8kMnfu80sol1hBUIJym4riQMAQrq8FNtDLwpy/OaPykFsPpIz+WHcsDz8XhXJYA6nkWE/Dhvnva0xk6Zn2N4P4h2waaKSH5f4YUXn/il8BujVCeUmvroT68znZqNsQoKk93AF9EyGDRHYLuupOj74iUfwlbh8u73WIP+DBWe35ZB33uEDzVqPlOGjhoWCpgn7HcrV8tON9GX/PBePLR6sabxnaUwknZt6bMUuqoQDLRawzxZAamNm/lzCdATkTmuexlZk7KiqkerPXZvvga1/Yqr7ZE4dDcSXfbm8=";
+    </script>
+    
