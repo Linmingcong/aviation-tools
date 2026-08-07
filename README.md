@@ -1,4 +1,3 @@
-# aviation-tools
-????? - Civil Aviation Tools Collection
+民航工具集 - Civil Aviation Tools Collection
 
-last build: 2026-08-06 15:34:25 UTC
+last build trigger: 2026-08-07 04:09:30 UTC
